@@ -1,0 +1,62 @@
+
+penguin_Left_Walk.png
+size: 2058, 1031
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+LeftWalk
+  rotate: false
+  xy: 2, 516
+  size: 512, 513
+  orig: 512, 513
+  offset: 0, 0
+  index: 6
+LeftWalk
+  rotate: false
+  xy: 2, 2
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 2
+LeftWalk
+  rotate: false
+  xy: 516, 517
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 7
+LeftWalk
+  rotate: false
+  xy: 516, 3
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 4
+LeftWalk
+  rotate: false
+  xy: 1030, 517
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 1
+LeftWalk
+  rotate: false
+  xy: 1030, 3
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 3
+LeftWalk
+  rotate: false
+  xy: 1544, 517
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 8
+LeftWalk
+  rotate: false
+  xy: 1544, 3
+  size: 512, 512
+  orig: 512, 512
+  offset: 0, 0
+  index: 5
