@@ -15,7 +15,7 @@ public class StartScreen implements Screen {
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
-    private Texture imageTexture; // 이미지 텍스처
+    private Texture imageTexture;
 
     public StartScreen(Game game) {
         this.game = game;
@@ -25,19 +25,28 @@ public class StartScreen implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        // 커스텀 폰트 생성
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pencilized.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 150;
-        font = generator.generateFont(parameter);
-        generator.dispose();
+        // 폰트 생성
+        try {
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pencilized.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.size = 150;
+            font = generator.generateFont(parameter);
+            generator.dispose();
+        } catch (Exception e) {
+            System.err.println("Font file not found or failed to load.");
+            e.printStackTrace();
+        }
 
         layout = new GlyphLayout();
         layout.setText(font, "Tap to Start");
 
-        // PNG 이미지 로드
-        imageTexture = new Texture(Gdx.files.internal("penguinStart.png")); // 이미지 파일 이름을 실제 파일명으로 교체
-
+        // 이미지 로드
+        try {
+            imageTexture = new Texture(Gdx.files.internal("penguinStart.png"));
+        } catch (Exception e) {
+            System.err.println("Image file not found or failed to load.");
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -47,23 +56,23 @@ public class StartScreen implements Screen {
 
         batch.begin();
 
-        // 이미지 크기와 위치 설정
-        float desiredWidth = Gdx.graphics.getWidth(); // 화면 전체 너비에 맞추기
-        float desiredHeight = imageTexture.getHeight() * (desiredWidth / imageTexture.getWidth()); // 비율에 맞춰 높이 조정
-        float imageX = (Gdx.graphics.getWidth() - desiredWidth) / 2.0f;
-        float imageY = -2; // 화면 하단에 맞추기 위해 Y 좌표를 0으로 설정
+        // 이미지와 텍스트 위치 계산 후 그리기
+        if (imageTexture != null) {
+            float desiredWidth = Gdx.graphics.getWidth();
+            float desiredHeight = imageTexture.getHeight() * (desiredWidth / imageTexture.getWidth());
+            float imageX = (Gdx.graphics.getWidth() - desiredWidth) / 2.0f;
+            float imageY = -2;
+            batch.draw(imageTexture, imageX, imageY, desiredWidth, desiredHeight);
+        }
 
-        // 이미지 그리기
-        batch.draw(imageTexture, imageX, imageY, desiredWidth, desiredHeight);
-
-        // 텍스트를 화면 중앙에서 400픽셀 위에 그리기
-        float textX = (Gdx.graphics.getWidth() - layout.width) / 2.0f;
-        float textY = (Gdx.graphics.getHeight() + layout.height) / 2.0f;
-        font.draw(batch, layout, textX, textY + 300f);
+        if (font != null && layout != null) {
+            float textX = (Gdx.graphics.getWidth() - layout.width) / 2.0f;
+            float textY = (Gdx.graphics.getHeight() + layout.height) / 2.0f;
+            font.draw(batch, layout, textX, textY + 300f);
+        }
 
         batch.end();
 
-        // 화면 터치 시 LobbyScreen으로 이동
         if (Gdx.input.isTouched()) {
             game.setScreen(new LobbyScreen(game));
         }
@@ -85,8 +94,8 @@ public class StartScreen implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
-        imageTexture.dispose(); // 이미지 텍스처 자원 해제
+        if (batch != null) batch.dispose();
+        if (font != null) font.dispose();
+        if (imageTexture != null) imageTexture.dispose();
     }
 }
