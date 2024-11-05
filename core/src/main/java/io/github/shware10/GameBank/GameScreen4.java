@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class GameScreen1 implements Screen {
+public class GameScreen4 implements Screen {
     private final Game game;
     private SpriteBatch batch;
 
@@ -24,7 +24,7 @@ public class GameScreen1 implements Screen {
     private float characterY = 100; // 캐릭터의 Y 위치 (고정된 위치)
     private float speed = 300f; // 캐릭터 이동 속도 (초당 200픽셀)
 
-    public GameScreen1(Game game) {
+    public GameScreen4(Game game) {
         this.game = game;
     }
 
