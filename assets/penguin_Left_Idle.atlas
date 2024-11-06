@@ -1,34 +1,34 @@
 
 penguin_Left_Idle.png
-size: 1030, 1030
+size: 1024, 256
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 penguin_LeftIdle
   rotate: false
-  xy: 2, 516
-  size: 512, 512
+  xy: 0, 1
+  size: 180, 252
   orig: 512, 512
-  offset: 0, 0
+  offset: 170, 34
   index: 2
 penguin_LeftIdle
   rotate: false
-  xy: 2, 2
-  size: 512, 512
+  xy: 180, 3
+  size: 180, 250
   orig: 512, 512
-  offset: 0, 0
+  offset: 170, 34
   index: 4
 penguin_LeftIdle
   rotate: false
-  xy: 516, 516
-  size: 512, 512
+  xy: 360, 3
+  size: 180, 250
   orig: 512, 512
-  offset: 0, 0
-  index: 1
+  offset: 170, 34
+  index: 3
 penguin_LeftIdle
   rotate: false
-  xy: 516, 2
-  size: 512, 512
+  xy: 540, 0
+  size: 177, 253
   orig: 512, 512
-  offset: 0, 0
-  index: 3
+  offset: 171, 34
+  index: 1

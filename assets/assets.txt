@@ -1,5 +1,6 @@
 .gitkeep
 Pencilized.ttf
+krabCan.png
 penguinStart.png
 penguin_Left_Attack.atlas
 penguin_Left_Attack.png
@@ -21,3 +22,6 @@ penguin_Right_Slide.atlas
 penguin_Right_Slide.png
 penguin_Right_Walk.atlas
 penguin_Right_Walk.png
+shrimpCan.png
+trashCan.png
+tunaCan.png
