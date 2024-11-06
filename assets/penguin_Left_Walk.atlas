@@ -1,62 +1,61 @@
-
 penguin_Left_Walk.png
-size: 2058, 1031
+size: 1024, 512
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 LeftWalk
   rotate: false
-  xy: 2, 516
-  size: 512, 513
-  orig: 512, 513
-  offset: 0, 0
-  index: 6
-LeftWalk
-  rotate: false
-  xy: 2, 2
-  size: 512, 512
+  xy: 0, 239
+  size: 178, 260
   orig: 512, 512
-  offset: 0, 0
-  index: 2
-LeftWalk
-  rotate: false
-  xy: 516, 517
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
-  index: 7
-LeftWalk
-  rotate: false
-  xy: 516, 3
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
+  offset: 169, 33
   index: 4
 LeftWalk
   rotate: false
-  xy: 1030, 517
-  size: 512, 512
+  xy: 178, 239
+  size: 178, 260
   orig: 512, 512
-  offset: 0, 0
-  index: 1
-LeftWalk
-  rotate: false
-  xy: 1030, 3
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
-  index: 3
-LeftWalk
-  rotate: false
-  xy: 1544, 517
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
+  offset: 170, 33
   index: 8
 LeftWalk
   rotate: false
-  xy: 1544, 3
-  size: 512, 512
+  xy: 356, 245
+  size: 179, 254
   orig: 512, 512
-  offset: 0, 0
+  offset: 170, 33
+  index: 1
+LeftWalk
+  rotate: false
+  xy: 535, 245
+  size: 179, 254
+  orig: 512, 512
+  offset: 170, 33
   index: 5
+LeftWalk
+  rotate: false
+  xy: 0, 0
+  size: 191, 239
+  orig: 512, 512
+  offset: 155, 32
+  index: 3
+LeftWalk
+  rotate: false
+  xy: 714, 258
+  size: 178, 241
+  orig: 512, 512
+  offset: 172, 32
+  index: 7
+LeftWalk
+  rotate: false
+  xy: 191, 38
+  size: 193, 201
+  orig: 512, 512
+  offset: 162, 32
+  index: 2
+LeftWalk
+  rotate: false
+  xy: 384, 45
+  size: 183, 200
+  orig: 512, 513
+  offset: 169, 32
+  index: 6

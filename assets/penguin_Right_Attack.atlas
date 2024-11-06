@@ -1,27 +1,27 @@
 
 penguin_Right_Attack.png
-size: 1544, 516
+size: 1024, 512
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 penguin_RightAtack
   rotate: false
-  xy: 2, 2
-  size: 512, 512
+  xy: 0, 0
+  size: 284, 335
   orig: 512, 512
-  offset: 0, 0
-  index: 2
-penguin_RightAtack
-  rotate: false
-  xy: 516, 2
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
+  offset: 166, 34
   index: 1
 penguin_RightAtack
   rotate: false
-  xy: 1030, 2
-  size: 512, 512
+  xy: 284, 97
+  size: 284, 238
   orig: 512, 512
-  offset: 0, 0
+  offset: 148, 34
+  index: 2
+penguin_RightAtack
+  rotate: false
+  xy: 568, 81
+  size: 178, 254
+  orig: 512, 512
+  offset: 163, 34
   index: 3

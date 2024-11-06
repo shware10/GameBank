@@ -1,62 +1,61 @@
-
 penguin_Right_Walk.png
-size: 2058, 1030
+size: 1024, 512
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 RightWalk
   rotate: false
-  xy: 2, 516
-  size: 512, 512
+  xy: 0, 239
+  size: 178, 260
   orig: 512, 512
-  offset: 0, 0
-  index: 1
-RightWalk
-  rotate: false
-  xy: 2, 2
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
-  index: 6
-RightWalk
-  rotate: false
-  xy: 516, 516
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
-  index: 3
-RightWalk
-  rotate: false
-  xy: 516, 2
-  size: 512, 512
-  orig: 512, 512
-  offset: 0, 0
+  offset: 164, 33
   index: 8
 RightWalk
   rotate: false
-  xy: 1030, 516
-  size: 512, 512
+  xy: 178, 239
+  size: 178, 260
   orig: 512, 512
-  offset: 0, 0
+  offset: 165, 33
+  index: 4
+RightWalk
+  rotate: false
+  xy: 356, 245
+  size: 179, 254
+  orig: 512, 512
+  offset: 163, 33
+  index: 1
+RightWalk
+  rotate: false
+  xy: 535, 245
+  size: 179, 254
+  orig: 512, 512
+  offset: 163, 33
   index: 5
 RightWalk
   rotate: false
-  xy: 1030, 2
-  size: 512, 512
+  xy: 0, 0
+  size: 191, 239
   orig: 512, 512
-  offset: 0, 0
-  index: 2
+  offset: 166, 32
+  index: 3
 RightWalk
   rotate: false
-  xy: 1544, 516
-  size: 512, 512
+  xy: 714, 258
+  size: 178, 241
   orig: 512, 512
-  offset: 0, 0
+  offset: 162, 32
   index: 7
 RightWalk
   rotate: false
-  xy: 1544, 2
-  size: 512, 512
+  xy: 191, 38
+  size: 193, 201
   orig: 512, 512
-  offset: 0, 0
-  index: 4
+  offset: 157, 32
+  index: 2
+RightWalk
+  rotate: false
+  xy: 384, 45
+  size: 183, 200
+  orig: 512, 512
+  offset: 160, 32
+  index: 6
