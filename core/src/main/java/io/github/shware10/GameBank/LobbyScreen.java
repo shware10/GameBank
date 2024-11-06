@@ -21,13 +21,14 @@ public class LobbyScreen implements Screen {
 
     @Override
     public void render(float delta) {
+        System.out.println("1");
         Gdx.gl.glClearColor(223 / 255f, 132 / 255f, 3 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 
         // 화면 터치 시 StartScreen으로 이동
         if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen1(game));
+            game.setScreen(new GameScreen7(game));
         }
     }
 
