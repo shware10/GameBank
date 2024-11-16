@@ -1,6 +1,7 @@
 .gitkeep
 Pencilized.ttf
 default.fnt
+krabCan.png
 penguinStart.png
 penguin_Left_Attack.atlas
 penguin_Left_Attack.png
