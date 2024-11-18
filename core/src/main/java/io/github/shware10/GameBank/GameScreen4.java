@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -38,8 +39,8 @@ public class GameScreen4 implements Screen {
     private float score = 0;
 
     private float initialTouchY;
+    private float groundLevel = 100; // 바닥 높이를 설정
 
-    // 스코어 표시용 폰트
     private BitmapFont font;
 
     public GameScreen4(Game game) {
@@ -50,14 +51,14 @@ public class GameScreen4 implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        font = new BitmapFont(); // 기본 폰트 생성
-        font.setColor(0.5f, 0.5f, 0.5f, 1); // 회색으로 설정
+        font = new BitmapFont();
+        font.setColor(0.5f, 0.5f, 0.5f, 1);
         font.getData().setScale(4);
 
-        leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas"); // 장애물
-        rightWalkAtlas = new TextureAtlas("penguin_Right_Walk.atlas"); // 공룡 대용 걷기 애니메이션
-        attackAtlas = new TextureAtlas("penguin_Right_Attack.atlas");  // 공격 애니메이션
-        slideAtlas = new TextureAtlas("penguin_Right_Slide.atlas"); // 슬라이드 애니메이션
+        leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas");
+        rightWalkAtlas = new TextureAtlas("penguin_Right_Walk.atlas");
+        attackAtlas = new TextureAtlas("penguin_Right_Attack.atlas");
+        slideAtlas = new TextureAtlas("penguin_Right_Slide.atlas");
 
         walkAnimation = new Animation<>(0.1f, rightWalkAtlas.findRegions("RightWalk"), Animation.PlayMode.LOOP);
         leftwalkAnimation = new Animation<>(0.1f, leftWalkAtlas.findRegions("LeftWalk"), Animation.PlayMode.LOOP);
@@ -66,7 +67,7 @@ public class GameScreen4 implements Screen {
 
         currentAnimation = walkAnimation;
 
-        dinosaurPosition = new Vector2(50, 100);
+        dinosaurPosition = new Vector2(50, groundLevel);
         dinosaurVelocity = new Vector2(0, 0);
 
         obstacles = new Array<>();
@@ -76,7 +77,8 @@ public class GameScreen4 implements Screen {
     }
 
     private void spawnObstacle() {
-        Rectangle obstacle = new Rectangle(Gdx.graphics.getWidth(), 100, leftWalkAtlas.findRegion("LeftWalk").getRegionWidth(), leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
+        float obstacleY = MathUtils.random(100, Gdx.graphics.getHeight() - leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
+        Rectangle obstacle = new Rectangle(Gdx.graphics.getWidth(), obstacleY, leftWalkAtlas.findRegion("LeftWalk").getRegionWidth(), leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
         obstacles.add(obstacle);
         lastObstacleTime = TimeUtils.nanoTime();
     }
@@ -88,19 +90,40 @@ public class GameScreen4 implements Screen {
 
         stateTime += delta;
 
-        if (dinosaurPosition.y > 100 || isJumping) {
+        // 중력 적용 및 바닥 높이 제한
+        if (dinosaurPosition.y > groundLevel || isJumping) {
             dinosaurVelocity.y += gravity * delta;
-        } else {
-            dinosaurPosition.y = 100;
+        }
+        // 캐릭터가 groundLevel 아래로 내려가지 않도록 제한
+        if (dinosaurPosition.y < groundLevel) {
+            dinosaurPosition.y = groundLevel;
             isJumping = false;
             dinosaurVelocity.y = 0;
+
             if (isSliding && slideAnimation.isAnimationFinished(stateTime)) {
                 isSliding = false;
                 currentAnimation = walkAnimation;
             }
         }
+
         dinosaurPosition.mulAdd(dinosaurVelocity, delta);
 
+        handleInput();
+        updateObstacles(delta);
+
+        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
+
+        batch.begin();
+        batch.draw(currentFrame, dinosaurPosition.x, dinosaurPosition.y);
+        for (Rectangle obstacle : obstacles) {
+            batch.draw(leftWalkAtlas.findRegion("LeftWalk"), obstacle.x, obstacle.y);
+        }
+        font.draw(batch, "Score: " + (int)score, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() - 20);
+        batch.end();
+    }
+
+
+    private void handleInput() {
         if (Gdx.input.isTouched()) {
             if (initialTouchY == 0) initialTouchY = Gdx.input.getY();
 
@@ -109,11 +132,11 @@ public class GameScreen4 implements Screen {
                 dinosaurVelocity.y = 1000f;
                 isJumping = true;
                 currentAnimation = walkAnimation;
-            } else if (deltaY < -50 && !isSliding && !isJumping && !isAttacking) {
+            } else if (deltaY < -50 && !isSliding && !isAttacking) {
                 isSliding = true;
                 currentAnimation = slideAnimation;
                 stateTime = 0f;
-            } else if (deltaY == 0 && !isAttacking && !isJumping && !isSliding) {
+            } else if (deltaY == 0 && !isAttacking && !isSliding) {
                 isAttacking = true;
                 currentAnimation = attackAnimation;
                 stateTime = 0f;
@@ -121,8 +144,10 @@ public class GameScreen4 implements Screen {
         } else {
             initialTouchY = 0;
         }
+    }
 
-        if (TimeUtils.nanoTime() - lastObstacleTime > 1500000000) {
+    private void updateObstacles(float delta) {
+        if (TimeUtils.nanoTime() - lastObstacleTime > MathUtils.random(1000000000, 2000000000)) {
             spawnObstacle();
         }
 
@@ -153,31 +178,18 @@ public class GameScreen4 implements Screen {
             isSliding = false;
             currentAnimation = walkAnimation;
         }
-
-        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
-
-        batch.begin();
-        batch.draw(currentFrame, dinosaurPosition.x, dinosaurPosition.y);
-        for (Rectangle obstacle : obstacles) {
-            batch.draw(leftWalkAtlas.findRegion("LeftWalk"), obstacle.x, obstacle.y);
-        }
-        font.draw(batch, "Score: " + (int)score, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() - 20); // 스코어 표시
-        batch.end();
     }
 
     private void gameOver() {
-
-            game.setScreen(new GameOverScreen(game, score));
-
-//        dinosaurPosition.set(50, 100);
-//        dinosaurVelocity.set(0, 0);
-//        obstacles.clear();
-//        spawnObstacle();
-//        isAttacking = false;
-//        isSliding = false;
-//        isJumping = false;
-//        currentAnimation = walkAnimation;
-//        stateTime = 0f;
+        dinosaurPosition.set(50, groundLevel);
+        dinosaurVelocity.set(0, 0);
+        obstacles.clear();
+        spawnObstacle();
+        isAttacking = false;
+        isSliding = false;
+        isJumping = false;
+        currentAnimation = walkAnimation;
+        stateTime = 0f;
     }
 
     @Override
