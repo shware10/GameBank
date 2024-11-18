@@ -77,7 +77,9 @@ public class GameScreen4 implements Screen {
     }
 
     private void spawnObstacle() {
-        float obstacleY = MathUtils.random(100, Gdx.graphics.getHeight() - leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
+        float obstacleY = MathUtils.random(100, 600 + leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
+        if(obstacleY % 2 == 1)obstacleY = 100;
+        else obstacleY = 600;
         Rectangle obstacle = new Rectangle(Gdx.graphics.getWidth(), obstacleY, leftWalkAtlas.findRegion("LeftWalk").getRegionWidth(), leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
         obstacles.add(obstacle);
         lastObstacleTime = TimeUtils.nanoTime();
@@ -118,7 +120,7 @@ public class GameScreen4 implements Screen {
         for (Rectangle obstacle : obstacles) {
             batch.draw(leftWalkAtlas.findRegion("LeftWalk"), obstacle.x, obstacle.y);
         }
-        font.draw(batch, "Score: " + (int)score, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() - 20);
+        font.draw(batch, "Score: " + (int)score, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() - 20);
         batch.end();
     }
 
@@ -134,6 +136,7 @@ public class GameScreen4 implements Screen {
                 currentAnimation = walkAnimation;
             } else if (deltaY < -50 && !isSliding && !isAttacking) {
                 isSliding = true;
+                dinosaurPosition.y = 100;
                 currentAnimation = slideAnimation;
                 stateTime = 0f;
             } else if (deltaY == 0 && !isAttacking && !isSliding) {
@@ -147,7 +150,10 @@ public class GameScreen4 implements Screen {
     }
 
     private void updateObstacles(float delta) {
-        if (TimeUtils.nanoTime() - lastObstacleTime > MathUtils.random(1000000000, 2000000000)) {
+        // 점수에 따라 스폰 딜레이 감소 (최소 500ms까지 제한)
+        long spawnDelay = MathUtils.clamp(2000000000 - (int)(score / 20) * 100000000, 1000000000, 2000000000);
+
+        if (TimeUtils.nanoTime() - lastObstacleTime > spawnDelay) {
             spawnObstacle();
         }
 
@@ -180,8 +186,12 @@ public class GameScreen4 implements Screen {
         }
     }
 
+
     private void gameOver() {
-        dinosaurPosition.set(50, groundLevel);
+
+        //game.setScreen(new GameOverScreen(game, score));
+
+        dinosaurPosition.set(50, 100);
         dinosaurVelocity.set(0, 0);
         obstacles.clear();
         spawnObstacle();
@@ -191,6 +201,7 @@ public class GameScreen4 implements Screen {
         currentAnimation = walkAnimation;
         stateTime = 0f;
     }
+
 
     @Override
     public void resize(int width, int height) {}
