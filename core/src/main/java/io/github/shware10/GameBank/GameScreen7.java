@@ -10,6 +10,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+
 
 public class GameScreen7 implements Screen {
     private final Game game;
@@ -19,27 +25,86 @@ public class GameScreen7 implements Screen {
     private boolean isJumping = false; // 점프 상태를 관리하는 변수
     private float characterX; // 캐릭터의 X 위치
     private float characterY = 100; // 캐릭터의 Y 위치 (고정된 위치)
-    private float speed = 300f; // 캐릭터 이동 속도
     private int currentLane = 1; // 캐릭터의 현재 lane (0: 왼쪽, 1: 가운데, 2: 오른쪽)
     private float targetX; // 목표 X 위치
-    private float moveSpeed = 500f; // 캐릭터의 부드러운 이동 속도
+    private float moveSpeed = 1000f; // 캐릭터의 부드러운 이동 속도
     private Texture krabCanTxt;
     private float krabCanY;
-    private float krabCanSpeed = 200f;
-    private float characterSpeed;
 
-    private TextureAtlas leftWalkAtlas, rightWalkAtlas, leftJumpAtlas, rightJumpAtlas;
+    private List<Obstacle> obstacles;
+    private float obstacleSpawnTimer;
+    private float obstacleSpawnInterval = 1.0f; // 장애물 생성 간격 (초 단위)
+    private Random random;
+
+    private TextureAtlas leftWalkAtlas;
     private Animation<TextureRegion> leftWalkAnimation;
-    private Animation<TextureRegion> rightWalkAnimation;
-    private Animation<TextureRegion> leftJumpAnimation;
-    private Animation<TextureRegion> rightJumpAnimation;
     private Animation<TextureRegion> currentAnimation;
 
     private float touchStartX = -1; // 슬라이드 시작 X 좌표
     private float touchEndX = -1;   // 슬라이드 끝 X 좌표
 
+    public class Obstacle {
+        private Texture texture;
+        private float x;
+        private float y;
+        private float speed = 500f; // 장애물의 하강 속도
+
+        public Obstacle(Texture texture, float x, float y) {
+            this.texture = texture;
+            this.x = x;
+            this.y = y;
+        }
+
+
+
+        public void update(float delta) {
+            // 장애물이 아래로 내려가도록 업데이트
+            this.y -= speed * delta;
+        }
+
+        public boolean isOutOfScreen() {
+            // 장애물이 화면 아래로 나갔는지 확인
+            return this.y + texture.getHeight() < 0;
+        }
+
+        public Texture getTexture() {
+            return texture;
+        }
+
+        public float getX() {
+            return x;
+        }
+
+        public float getY() {
+            return y;
+        }
+    }
+
+    private boolean isCollision(float characterX, float characterY, TextureRegion characterTexture, Obstacle obstacle) {
+        // 캐릭터의 경계 생성
+        Rectangle characterBounds = new Rectangle(
+            characterX,
+            characterY,
+            characterTexture.getRegionWidth(),
+            characterTexture.getRegionHeight()
+        );
+
+        // 장애물의 경계 생성
+        Rectangle obstacleBounds = new Rectangle(
+            obstacle.getX(),
+            obstacle.getY(),
+            obstacle.getTexture().getWidth(),
+            obstacle.getTexture().getHeight()
+        );
+
+        // 경계가 겹치는지 확인
+        return characterBounds.overlaps(obstacleBounds);
+    }
+
     public GameScreen7(Game game) {
         this.game = game;
+        this.obstacles = new ArrayList<>();
+        this.random = new Random();
     }
 
     @Override
@@ -49,17 +114,11 @@ public class GameScreen7 implements Screen {
 
         krabCanTxt = new Texture(Gdx.files.internal("krabCan.png"));
 
-        // 각 애니메이션에 대한 TextureAtlas 로드
+        // 애니메이션에 대한 TextureAtlas 로드
         leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas"); // 왼쪽 이동 애니메이션 아틀라스
-        rightWalkAtlas = new TextureAtlas("penguin_Right_Walk.atlas"); // 오른쪽 이동 애니메이션 아틀라스
-        leftJumpAtlas = new TextureAtlas("penguin_Left_Jump.atlas");
-        rightJumpAtlas = new TextureAtlas("penguin_Right_Jump.atlas");
 
-        // 각 애니메이션 정의
+        // 애니메이션 정의
         leftWalkAnimation = new Animation<>(0.1f, leftWalkAtlas.findRegions("LeftWalk"), Animation.PlayMode.LOOP);
-        rightWalkAnimation = new Animation<>(0.1f, rightWalkAtlas.findRegions("RightWalk"), Animation.PlayMode.LOOP);
-        leftJumpAnimation = new Animation<>(0.15f, leftJumpAtlas.findRegions("penguin_LeftJump"), Animation.PlayMode.NORMAL);
-        rightJumpAnimation = new Animation<>(0.15f, rightJumpAtlas.findRegions("penguin_RightJump"), Animation.PlayMode.NORMAL);
 
         // 초기 애니메이션을 leftWalk로 설정
         currentAnimation = leftWalkAnimation;
@@ -77,16 +136,45 @@ public class GameScreen7 implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         stateTime += delta;
+        obstacleSpawnTimer += delta;
 
-        krabCanY -= krabCanSpeed * delta;
-        if (krabCanY < -krabCanTxt.getHeight()) {
-            krabCanY = Gdx.graphics.getHeight() - krabCanTxt.getHeight() - 10; // 화면 상단에서 다시 시작
+        // 장애물 업데이트 및 충돌 체크
+        for (Iterator<Obstacle> iterator = obstacles.iterator(); iterator.hasNext();) {
+            Obstacle obstacle = iterator.next();
+            obstacle.update(delta);
+
+            // 충돌 체크
+            if (isCollision(characterX, characterY, leftWalkAnimation.getKeyFrame(stateTime, true), obstacle)) {
+                Gdx.app.log("Collision", "Character collided with obstacle!");
+                // 충돌 시 원하는 행동 수행 (예: 게임 종료, 점수 차감 등)
+                // 예: 장애물을 리스트에서 제거
+                iterator.remove();
+            }
+
+            // 장애물이 화면 아래로 나가면 제거
+            if (obstacle.isOutOfScreen()) {
+                iterator.remove();
+            }
+        }
+
+        // 일정 주기마다 장애물 생성
+        if (obstacleSpawnTimer >= obstacleSpawnInterval) {
+            spawnObstacle();
+            obstacleSpawnTimer = 0;
+        }
+
+        // 장애물 업데이트
+        for (Iterator<Obstacle> iterator = obstacles.iterator(); iterator.hasNext();) {
+            Obstacle obstacle = iterator.next();
+            obstacle.update(delta);
+            if (obstacle.isOutOfScreen()) {
+                iterator.remove(); // 화면 밖으로 나간 장애물 제거
+            }
         }
 
         // 점프 애니메이션이 끝났는지 확인
         if (isJumping && currentAnimation.isAnimationFinished(stateTime)) {
             isJumping = false;
-            currentAnimation = leftWalkAnimation; // 기본 애니메이션은 왼쪽으로 설정
             stateTime = 0f; // 걷기 애니메이션을 처음부터 시작
         }
 
@@ -123,18 +211,21 @@ public class GameScreen7 implements Screen {
         }
 
         // 캐릭터의 위치를 부드럽게 업데이트
-        characterX += (targetX - characterX) * Math.min(1, moveSpeed * delta);
+        if (Math.abs(targetX - characterX) > 1) { // 목표 위치에 거의 도달하지 않은 경우에만 이동
+            characterX += Math.signum(targetX - characterX) * moveSpeed * delta;
+        } else {
+            // 목표 위치에 도달했을 때는 정확히 위치를 맞춤
+            characterX = targetX;
+        }
 
         // 현재 애니메이션의 프레임을 가져오기
-        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
+        TextureRegion currentFrame = leftWalkAnimation.getKeyFrame(stateTime, true);
 
         batch.begin();
         batch.draw(currentFrame, characterX, characterY); // 캐릭터를 화면에 그리기
-        float x = (Gdx.graphics.getWidth() - krabCanTxt.getWidth()) / 2f; // 중앙에 맞추기 위한 x 좌표
-        float y = Gdx.graphics.getHeight() - krabCanTxt.getHeight() - 10; // 화면 상단에 약간의 여백을 둔다 (y 좌표)
-
-        float krabCanX = (Gdx.graphics.getWidth() - krabCanTxt.getWidth()) / 2f; // 중앙에 맞추기 위한 x 좌표
-        batch.draw(krabCanTxt, krabCanX, krabCanY); // krabCan을 새로운 y 좌표에 그리기
+        for (Obstacle obstacle : obstacles) {
+            batch.draw(obstacle.getTexture(), obstacle.getX(), obstacle.getY());
+        }
         batch.end();
 
         // 기존 코드에 선 그리기 부분
@@ -146,16 +237,28 @@ public class GameScreen7 implements Screen {
         shapeRenderer.end();
     }
 
+    private void spawnObstacle() {
+        // 장애물을 1, 2, 3번 레인 중 랜덤한 위치에 생성
+        int lane = random.nextInt(3); // 0, 1, 2 중 랜덤 선택
+        float laneWidth = Gdx.graphics.getWidth() / 3f;
+        float x = lane * laneWidth + (laneWidth - krabCanTxt.getWidth()) / 2;
+        float y = Gdx.graphics.getHeight(); // 화면 상단에서 생성
+
+        obstacles.add(new Obstacle(krabCanTxt, x, y));
+    }
+
     @Override
     public void resize(int width, int height) {
         // 뷰포트 업데이트
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
     public void hide() {
@@ -166,9 +269,6 @@ public class GameScreen7 implements Screen {
     public void dispose() {
         batch.dispose();
         shapeRenderer.dispose();
-        leftWalkAtlas.dispose();
-        rightWalkAtlas.dispose();
-        leftJumpAtlas.dispose();
-        rightJumpAtlas.dispose();
+        krabCanTxt.dispose();
     }
 }
