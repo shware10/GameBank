@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -30,6 +31,8 @@ public class GameScreen7 implements Screen {
     private float moveSpeed = 1000f; // 캐릭터의 부드러운 이동 속도
     private Texture krabCanTxt;
     private float krabCanY;
+    private boolean isGameOver = false; // 결과 창 표시 상태
+    private String gameOverMessage = ""; // 결과 메시지 (예: 점수, 메시지 등)
 
     private List<Obstacle> obstacles;
     private float obstacleSpawnTimer;
@@ -54,8 +57,6 @@ public class GameScreen7 implements Screen {
             this.x = x;
             this.y = y;
         }
-
-
 
         public void update(float delta) {
             // 장애물이 아래로 내려가도록 업데이트
@@ -101,6 +102,18 @@ public class GameScreen7 implements Screen {
         return characterBounds.overlaps(obstacleBounds);
     }
 
+    private void restartGame() {
+        // 게임 상태 초기화
+        isGameOver = false; // 게임 오버 상태 해제
+        gameOverMessage = ""; // 메시지 초기화
+        characterX = Gdx.graphics.getWidth() / 3f; // 캐릭터 초기 위치
+        currentLane = 1; // 초기 Lane
+        targetX = characterX;
+        obstacles.clear(); // 기존 장애물 제거
+        stateTime = 0f; // 애니메이션 초기화
+        obstacleSpawnTimer = 0f; // 장애물 스폰 타이머 초기화
+    }
+
     public GameScreen7(Game game) {
         this.game = game;
         this.obstacles = new ArrayList<>();
@@ -132,6 +145,28 @@ public class GameScreen7 implements Screen {
 
     @Override
     public void render(float delta) {
+
+        if (isGameOver) {
+            batch.begin();
+
+            // 게임 오버 배경 표시 (선택 사항)
+            batch.draw(new Texture("game_over_background.png"), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+            // 게임 오버 메시지 출력
+            BitmapFont font = new BitmapFont(); // 기본 폰트 사용
+            font.getData().setScale(2f); // 글자 크기 조정
+            font.draw(batch, "Game Over", Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f + 50);
+            font.draw(batch, gameOverMessage, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
+
+            // 터치 입력으로 재시작
+            if (Gdx.input.justTouched()) {
+                restartGame(); // 게임 재시작
+            }
+
+            batch.end();
+            return; // 게임 로직 중단
+        }
+
         Gdx.gl.glClearColor(223 / 255f, 132 / 255f, 3 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -145,10 +180,10 @@ public class GameScreen7 implements Screen {
 
             // 충돌 체크
             if (isCollision(characterX, characterY, leftWalkAnimation.getKeyFrame(stateTime, true), obstacle)) {
-                Gdx.app.log("Collision", "Character collided with obstacle!");
-                // 충돌 시 원하는 행동 수행 (예: 게임 종료, 점수 차감 등)
-                // 예: 장애물을 리스트에서 제거
-                iterator.remove();
+                Gdx.app.log("Collision", "Game Over!");
+                isGameOver = true; // 게임 오버 상태로 전환
+                gameOverMessage = "Final Score: "; //+ getScore(); // 점수 표시 (선택 사항)
+                return; // 이후 로직 중단
             }
 
             // 장애물이 화면 아래로 나가면 제거
