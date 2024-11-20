@@ -3,100 +3,87 @@ package io.github.shware10.GameBank;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 
 public class GameOverScreen implements Screen {
     private final Game game;
-    private final float score;
+    private final float finalScore;
     private SpriteBatch batch;
     private BitmapFont font;
-    private Stage stage;
-    private Skin skin;
+    private ShapeRenderer shapeRenderer;
+    private Rectangle restartButton;
+    private Rectangle quitButton;
 
     public GameOverScreen(Game game, float score) {
         this.game = game;
-        this.score = score;
+        this.finalScore = score;
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
-
+        shapeRenderer = new ShapeRenderer();
         font = new BitmapFont();
-        font.setColor(Color.WHITE);
-        font.getData().setScale(2); // Adjust font size as needed
+        font.getData().setScale(3);
 
-        stage = new Stage(new ScreenViewport());
-        Gdx.input.setInputProcessor(stage);
+        // 버튼 위치 및 크기 설정
+        float buttonWidth = 300;
+        float buttonHeight = 100;
+        float centerX = Gdx.graphics.getWidth() / 2f - buttonWidth / 2f;
+        float centerY = Gdx.graphics.getHeight() / 2f;
 
-        skin = new Skin();
-//        skin.addRegions(new TextureAtlas("uiskin.atlas")); // Load UI atlas
-//        skin.add("default-font", font);
-//        skin.load(Gdx.files.internal("uiskin.json"));
-
-        // Restart Button
-        TextButton restartButton = new TextButton("Restart", skin);
-        restartButton.setPosition(Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f - 50);
-        restartButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                game.setScreen(new GameScreen4(game)); // Restart the game
-                dispose();
-            }
-        });
-
-        // Exit Button
-        TextButton exitButton = new TextButton("Exit", skin);
-        exitButton.setPosition(Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f - 150);
-        exitButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                Gdx.app.exit(); // Exit the game
-            }
-        });
-
-        stage.addActor(restartButton);
-        stage.addActor(exitButton);
+        restartButton = new Rectangle(centerX, centerY + 120, buttonWidth, buttonHeight);
+        quitButton = new Rectangle(centerX, centerY - 20, buttonWidth, buttonHeight);
     }
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0, 0.5f); // Semi-transparent black
+        Gdx.gl.glClearColor(223 / 255f, 132 / 255f, 3 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         batch.begin();
-        font.draw(batch, "Game Over", Gdx.graphics.getWidth() / 2f - 80, Gdx.graphics.getHeight() / 2f + 100);
-        font.draw(batch, "Score: " + (int) score, Gdx.graphics.getWidth() / 2f - 60, Gdx.graphics.getHeight() / 2f + 50);
+        font.draw(batch, "Game Over", Gdx.graphics.getWidth() / 2f - 130, Gdx.graphics.getHeight() - 150);
+        font.draw(batch, "Score: " + (int) finalScore, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() - 250);
         batch.end();
 
-        stage.act(delta);
-        stage.draw();
+        // 버튼 렌더링
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(0.2f, 0.5f, 0.8f, 1);
+        shapeRenderer.rect(restartButton.x, restartButton.y, restartButton.width, restartButton.height);
+        shapeRenderer.setColor(0.8f, 0.2f, 0.2f, 1);
+        shapeRenderer.rect(quitButton.x, quitButton.y, quitButton.width, quitButton.height);
+        shapeRenderer.end();
+
+        batch.begin();
+        font.draw(batch, "Restart", restartButton.x + 80, restartButton.y + 65);
+        font.draw(batch, "Quit", quitButton.x + 110, quitButton.y + 65);
+        batch.end();
+
+        // 입력 처리
+        if (Gdx.input.isTouched()) {
+            float touchX = Gdx.input.getX();
+            float touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
+
+            if (restartButton.contains(touchX, touchY)) {
+                game.setScreen(new GameScreen4(game)); // 현재 게임 재시작
+            } else if (quitButton.contains(touchX, touchY)) {
+                game.setScreen(((Core) game).getLobbyScreen()); // 종료
+            }
+        }
     }
 
     @Override
-    public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
-    }
+    public void resize(int width, int height) {}
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() {}
 
     @Override
     public void hide() {
@@ -107,7 +94,6 @@ public class GameOverScreen implements Screen {
     public void dispose() {
         batch.dispose();
         font.dispose();
-        stage.dispose();
-        skin.dispose();
+        shapeRenderer.dispose();
     }
 }

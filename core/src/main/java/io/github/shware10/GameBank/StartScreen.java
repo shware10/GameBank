@@ -25,7 +25,6 @@ public class StartScreen implements Screen {
     public void show() {
         batch = new SpriteBatch();
 
-        // 폰트 생성
         try {
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pencilized.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -40,7 +39,6 @@ public class StartScreen implements Screen {
         layout = new GlyphLayout();
         layout.setText(font, "Tap to Start");
 
-        // 이미지 로드
         try {
             imageTexture = new Texture(Gdx.files.internal("penguinStart.png"));
         } catch (Exception e) {
@@ -56,7 +54,6 @@ public class StartScreen implements Screen {
 
         batch.begin();
 
-        // 이미지와 텍스트 위치 계산 후 그리기
         if (imageTexture != null) {
             float desiredWidth = Gdx.graphics.getWidth();
             float desiredHeight = imageTexture.getHeight() * (desiredWidth / imageTexture.getWidth());
@@ -74,7 +71,7 @@ public class StartScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isTouched()) {
-            game.setScreen(new LobbyScreen(game));
+            game.setScreen(((Core) game).getLobbyScreen());
         }
     }
 

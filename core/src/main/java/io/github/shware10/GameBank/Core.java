@@ -2,10 +2,19 @@ package io.github.shware10.GameBank;
 
 import com.badlogic.gdx.Game;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Core extends Game {
+    private StartScreen startScreen;
+    private LobbyScreen lobbyScreen;
+
     @Override
     public void create() {
-        setScreen(new StartScreen(this));
+        startScreen = new StartScreen(this);
+        lobbyScreen = new LobbyScreen(this);
+
+        setScreen(startScreen);
+    }
+
+    public LobbyScreen getLobbyScreen() {
+        return lobbyScreen;
     }
 }
