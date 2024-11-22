@@ -90,7 +90,7 @@ public class GameScreen1 implements Screen
                     createObstacleOrItem();
                 }
             }
-        }, 1, 2); // 매 2초마다 장애물이나 아이템 생성
+        }, 1, 1.2f); // 매 2초마다 장애물이나 아이템 생성
     }
 
     @Override
@@ -127,7 +127,7 @@ public class GameScreen1 implements Screen
         {
             obstacle.translateY(-400 * delta); // 장애물 아래로 이동
             if (obstacle.getY() + obstacle.getHeight() < 0) obstacles.removeValue(obstacle, true); // 화면 아래로 나가면 제거
-            if (obstacle.getBoundingRectangle().overlaps(new Rectangle(characterX, characterY, currentAnimation.getKeyFrame(stateTime).getRegionWidth(), currentAnimation.getKeyFrame(stateTime).getRegionHeight())))
+            if (obstacle.getBoundingRectangle().overlaps(new Rectangle(characterX, characterY, currentAnimation.getKeyFrame(stateTime).getRegionWidth()*0.7f, currentAnimation.getKeyFrame(stateTime).getRegionHeight()*0.7f)))
             {
                 isGameOver = true; // 장애물에 충돌 시 게임 종료
             }
@@ -137,7 +137,7 @@ public class GameScreen1 implements Screen
         {
             item.sprite.translateY(-400 * delta); // 아이템 아래로 이동
             if (item.sprite.getY() + item.sprite.getHeight() < 0) items.removeValue(item, true); // 화면 아래로 나가면 제거
-            if (item.sprite.getBoundingRectangle().overlaps(new Rectangle(characterX, characterY, currentAnimation.getKeyFrame(stateTime).getRegionWidth(), currentAnimation.getKeyFrame(stateTime).getRegionHeight()))) {
+            if (item.sprite.getBoundingRectangle().overlaps(new Rectangle(characterX, characterY, currentAnimation.getKeyFrame(stateTime).getRegionWidth()*0.7f, currentAnimation.getKeyFrame(stateTime).getRegionHeight()*0.7f))) {
                 items.removeValue(item, true); // 아이템 획득 시 제거
                 score += item.scoreValue; // 아이템 획득 시 해당 점수 증가
             }
@@ -172,7 +172,8 @@ public class GameScreen1 implements Screen
     private void createObstacleOrItem()
     {
         // 장애물 생성
-        int randomCreateNum = MathUtils.random(4);
+        float ratio = 1.3f;
+        int randomCreateNum = MathUtils.random(3);
         for (int i = 0; i < randomCreateNum; i++)
         {
             int randomCreateItem = MathUtils.random(10);
@@ -181,13 +182,13 @@ public class GameScreen1 implements Screen
                 Texture selectedTexture;
                 int scoreValue;
 
-                int random2 = MathUtils.random(10);
-                if (random2 >= 6)
+                int randomItem = MathUtils.random(10);
+                if (randomItem >= 6)
                 {
                     selectedTexture = shrimpCan;
                     scoreValue = 5;
                 }
-                else if (random2 >= 2)
+                else if (randomItem >= 2)
                 {
                     selectedTexture = tunaCan;
                     scoreValue = 10;
@@ -198,15 +199,34 @@ public class GameScreen1 implements Screen
                     scoreValue = 20;
                 }
                 Sprite itemSprite = new Sprite(selectedTexture);
-                itemSprite.setSize(150, 150);
-                itemSprite.setPosition(MathUtils.random(0, Gdx.graphics.getWidth() - itemSprite.getWidth()), Gdx.graphics.getHeight());
+                if(selectedTexture == shrimpCan)
+                {
+                    itemSprite.setSize(65*ratio, 104*ratio);
+                }
+                else if(selectedTexture == tunaCan)
+                {
+                    itemSprite.setSize(108*ratio, 87*ratio);
+                }
+                else //krabCan
+                {
+                    itemSprite.setSize(99*ratio, 100*ratio);
+                }
+                float maxPosition = Gdx.graphics.getWidth() - itemSprite.getWidth();
+                float[] spawnPosition = {0f, maxPosition * 0.1f, maxPosition * 0.2f, maxPosition * 0.3f, maxPosition * 0.4f, maxPosition * 0.5f,
+                    maxPosition * 0.6f, maxPosition * 0.7f, maxPosition * 0.8f, maxPosition * 0.9f, maxPosition};
+                int randomInt = MathUtils.random(9);
+                itemSprite.setPosition(spawnPosition[randomInt], Gdx.graphics.getHeight());
                 items.add(new Item(itemSprite, scoreValue));
             }
             else
             {
                 Sprite obstacle = new Sprite(trashCan);
-                obstacle.setSize(150, 150); // 크기 설정
-                obstacle.setPosition(MathUtils.random(0, Gdx.graphics.getWidth() - obstacle.getWidth()), Gdx.graphics.getHeight());
+                obstacle.setSize(103*ratio, 86*ratio); // 크기 설정
+                float maxPosition = Gdx.graphics.getWidth() - obstacle.getWidth();
+                float[] spawnPosition = {0f, maxPosition * 0.1f, maxPosition * 0.2f, maxPosition * 0.3f, maxPosition * 0.4f, maxPosition * 0.5f,
+                maxPosition * 0.6f, maxPosition * 0.7f, maxPosition * 0.8f, maxPosition * 0.9f, maxPosition};
+                int randomInt = MathUtils.random(9);
+                obstacle.setPosition(spawnPosition[randomInt], Gdx.graphics.getHeight());
                 obstacles.add(obstacle);
             }
         }
