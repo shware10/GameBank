@@ -4,8 +4,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.Texture; // 추가
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -21,8 +22,8 @@ public class GameScreen4 implements Screen {
     private final Game game;
     private SpriteBatch batch;
 
-    private TextureAtlas leftWalkAtlas, rightWalkAtlas, attackAtlas, slideAtlas;
-    private Animation<TextureRegion> leftwalkAnimation, walkAnimation, attackAnimation, slideAnimation;
+    private TextureAtlas rightWalkAtlas, attackAtlas, slideAtlas;
+    private Animation<TextureRegion> walkAnimation, attackAnimation, slideAnimation;
     private Animation<TextureRegion> currentAnimation;
 
     private Vector2 dinosaurPosition;
@@ -42,6 +43,7 @@ public class GameScreen4 implements Screen {
     private float groundLevel = 100; // 바닥 높이를 설정
 
     private BitmapFont font;
+    private Texture trashTexture; // TrashBlock_2.png 텍스처 추가
 
     public GameScreen4(Game game) {
         this.game = game;
@@ -55,13 +57,11 @@ public class GameScreen4 implements Screen {
         font.setColor(0.5f, 0.5f, 0.5f, 1);
         font.getData().setScale(4);
 
-        leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas");
         rightWalkAtlas = new TextureAtlas("penguin_Right_Walk.atlas");
         attackAtlas = new TextureAtlas("penguin_Right_Attack.atlas");
         slideAtlas = new TextureAtlas("penguin_Right_Slide.atlas");
 
         walkAnimation = new Animation<>(0.1f, rightWalkAtlas.findRegions("RightWalk"), Animation.PlayMode.LOOP);
-        leftwalkAnimation = new Animation<>(0.1f, leftWalkAtlas.findRegions("LeftWalk"), Animation.PlayMode.LOOP);
         attackAnimation = new Animation<>(0.1f, attackAtlas.findRegions("penguin_RightAtack"), Animation.PlayMode.LOOP);
         slideAnimation = new Animation<>(0.1f, slideAtlas.findRegions("penguin_RightSlide"), Animation.PlayMode.LOOP);
 
@@ -70,6 +70,8 @@ public class GameScreen4 implements Screen {
         dinosaurPosition = new Vector2(50, groundLevel);
         dinosaurVelocity = new Vector2(0, 0);
 
+        trashTexture = new Texture("TrashBlock_2.png"); // TrashBlock_2.png 텍스처 로드
+
         obstacles = new Array<>();
         spawnObstacle();
 
@@ -77,10 +79,8 @@ public class GameScreen4 implements Screen {
     }
 
     private void spawnObstacle() {
-        float obstacleY = MathUtils.random(100, 600 + leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
-        if(obstacleY % 2 == 1)obstacleY = 100;
-        else obstacleY = 600;
-        Rectangle obstacle = new Rectangle(Gdx.graphics.getWidth(), obstacleY, leftWalkAtlas.findRegion("LeftWalk").getRegionWidth(), leftWalkAtlas.findRegion("LeftWalk").getRegionHeight());
+        float obstacleY = MathUtils.random(100, 600 - trashTexture.getHeight());
+        Rectangle obstacle = new Rectangle(Gdx.graphics.getWidth(), obstacleY, trashTexture.getWidth(), trashTexture.getHeight());
         obstacles.add(obstacle);
         lastObstacleTime = TimeUtils.nanoTime();
     }
@@ -96,7 +96,6 @@ public class GameScreen4 implements Screen {
         if (dinosaurPosition.y > groundLevel || isJumping) {
             dinosaurVelocity.y += gravity * delta;
         }
-        // 캐릭터가 groundLevel 아래로 내려가지 않도록 제한
         if (dinosaurPosition.y < groundLevel) {
             dinosaurPosition.y = groundLevel;
             isJumping = false;
@@ -118,9 +117,9 @@ public class GameScreen4 implements Screen {
         batch.begin();
         batch.draw(currentFrame, dinosaurPosition.x, dinosaurPosition.y);
         for (Rectangle obstacle : obstacles) {
-            batch.draw(leftWalkAtlas.findRegion("LeftWalk"), obstacle.x, obstacle.y);
+            batch.draw(trashTexture, obstacle.x, obstacle.y); // TrashBlock_2.png 그리기
         }
-        font.draw(batch, "Score: " + (int)score, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() - 20);
+        font.draw(batch, "Score: " + (int) score, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() - 20);
         batch.end();
     }
 
@@ -227,7 +226,7 @@ public class GameScreen4 implements Screen {
     public void dispose() {
         batch.dispose();
         font.dispose();
-        leftWalkAtlas.dispose();
+        trashTexture.dispose();
         rightWalkAtlas.dispose();
         attackAtlas.dispose();
         slideAtlas.dispose();
