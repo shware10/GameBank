@@ -1,0 +1,48 @@
+
+Top_Slide_Idle.png
+size: 1134, 307
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Top_Slide_Idle
+  rotate: false
+  xy: 2, 2
+  size: 190, 303
+  orig: 512, 512
+  offset: 160, 87
+  index: 5
+Top_Slide_Idle
+  rotate: false
+  xy: 194, 5
+  size: 191, 300
+  orig: 512, 512
+  offset: 160, 90
+  index: 3
+Top_Slide_Idle
+  rotate: false
+  xy: 387, 13
+  size: 192, 292
+  orig: 512, 512
+  offset: 159, 98
+  index: 4
+Top_Slide_Idle
+  rotate: false
+  xy: 581, 11
+  size: 184, 294
+  orig: 512, 512
+  offset: 163, 95
+  index: 2
+Top_Slide_Idle
+  rotate: false
+  xy: 767, 16
+  size: 187, 289
+  orig: 512, 512
+  offset: 161, 101
+  index: 6
+Top_Slide_Idle
+  rotate: false
+  xy: 956, 31
+  size: 176, 274
+  orig: 512, 512
+  offset: 167, 116
+  index: 1

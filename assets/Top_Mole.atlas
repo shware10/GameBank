@@ -1,0 +1,48 @@
+
+Top_Mole.png
+size: 1064, 670
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Top_Mole
+  rotate: false
+  xy: 2, 336
+  size: 352, 332
+  orig: 371, 354
+  offset: 12, 12
+  index: 4
+Top_Mole
+  rotate: false
+  xy: 2, 2
+  size: 352, 332
+  orig: 371, 354
+  offset: 12, 12
+  index: 1
+Top_Mole
+  rotate: false
+  xy: 356, 336
+  size: 352, 332
+  orig: 371, 354
+  offset: 12, 12
+  index: 6
+Top_Mole
+  rotate: false
+  xy: 356, 2
+  size: 352, 332
+  orig: 371, 354
+  offset: 12, 12
+  index: 3
+Top_Mole
+  rotate: false
+  xy: 710, 336
+  size: 352, 332
+  orig: 371, 354
+  offset: 12, 12
+  index: 5
+Top_Mole
+  rotate: false
+  xy: 710, 2
+  size: 352, 332
+  orig: 371, 354
+  offset: 12, 12
+  index: 2

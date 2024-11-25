@@ -1,0 +1,55 @@
+
+Top_Slide_Left.png
+size: 1161, 307
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Top_Slide_Left
+  rotate: false
+  xy: 2, 4
+  size: 159, 301
+  orig: 512, 512
+  offset: 175, 90
+  index: 5
+Top_Slide_Left
+  rotate: false
+  xy: 163, 2
+  size: 156, 303
+  orig: 512, 512
+  offset: 178, 87
+  index: 4
+Top_Slide_Left
+  rotate: false
+  xy: 321, 31
+  size: 176, 274
+  orig: 512, 512
+  offset: 167, 112
+  index: 1
+Top_Slide_Left
+  rotate: false
+  xy: 499, 20
+  size: 161, 285
+  orig: 512, 512
+  offset: 175, 101
+  index: 6
+Top_Slide_Left
+  rotate: false
+  xy: 662, 20
+  size: 161, 285
+  orig: 512, 512
+  offset: 170, 106
+  index: 3
+Top_Slide_Left
+  rotate: false
+  xy: 825, 36
+  size: 166, 269
+  orig: 512, 512
+  offset: 165, 117
+  index: 2
+Top_Slide_Left
+  rotate: false
+  xy: 993, 36
+  size: 166, 269
+  orig: 512, 512
+  offset: 170, 117
+  index: 7
