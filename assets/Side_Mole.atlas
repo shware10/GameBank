@@ -1,0 +1,48 @@
+
+Side_Mole.png
+size: 1651, 237
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Side_Mole
+  rotate: false
+  xy: 0, 0
+  size: 276, 237
+  orig: 512, 512
+  offset: 110, 127
+  index: 2
+Side_Mole
+  rotate: false
+  xy: 276, 2
+  size: 275, 235
+  orig: 512, 512
+  offset: 111, 127
+  index: 5
+Side_Mole
+  rotate: false
+  xy: 551, 2
+  size: 275, 235
+  orig: 512, 512
+  offset: 111, 127
+  index: 4
+Side_Mole
+  rotate: false
+  xy: 826, 2
+  size: 275, 235
+  orig: 512, 512
+  offset: 111, 127
+  index: 1
+Side_Mole
+  rotate: false
+  xy: 1101, 2
+  size: 275, 235
+  orig: 512, 512
+  offset: 111, 127
+  index: 6
+Side_Mole
+  rotate: false
+  xy: 1376, 2
+  size: 275, 235
+  orig: 512, 512
+  offset: 111, 127
+  index: 3
