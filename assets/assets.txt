@@ -1,5 +1,7 @@
 .gitkeep
 Pencilized.ttf
+Side_Mole.atlas
+Side_Mole.png
 Top_Mole.atlas
 Top_Mole.png
 Top_Orca.atlas
