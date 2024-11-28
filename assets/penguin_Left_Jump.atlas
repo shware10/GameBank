@@ -1,34 +1,34 @@
 
 penguin_Left_Jump.png
-size: 1030, 1030
+size: 1024, 512
 format: RGBA8888
 filter: Nearest, Nearest
 repeat: none
 penguin_LeftJump
   rotate: false
-  xy: 2, 516
-  size: 512, 512
+  xy: 0, 98
+  size: 201, 279
   orig: 512, 512
-  offset: 0, 0
+  offset: 173, 156
   index: 2
 penguin_LeftJump
   rotate: false
-  xy: 2, 2
-  size: 512, 512
+  xy: 201, 98
+  size: 201, 279
   orig: 512, 512
-  offset: 0, 0
+  offset: 173, 156
   index: 4
 penguin_LeftJump
   rotate: false
-  xy: 516, 516
-  size: 512, 512
+  xy: 402, 125
+  size: 203, 252
   orig: 512, 512
-  offset: 0, 0
+  offset: 175, 245
   index: 1
 penguin_LeftJump
   rotate: false
-  xy: 516, 2
-  size: 512, 512
+  xy: 0, 0
+  size: 240, 98
   orig: 512, 512
-  offset: 0, 0
+  offset: 149, 31
   index: 3
