@@ -1,0 +1,76 @@
+
+Top_Orca.png
+size: 2022, 1334
+format: RGBA8888
+filter: Nearest, Nearest
+repeat: none
+Top_Orca
+  rotate: false
+  xy: 2, 668
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 5
+Top_Orca
+  rotate: false
+  xy: 2, 2
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 10
+Top_Orca
+  rotate: false
+  xy: 406, 668
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 2
+Top_Orca
+  rotate: false
+  xy: 406, 2
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 7
+Top_Orca
+  rotate: false
+  xy: 810, 668
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 4
+Top_Orca
+  rotate: false
+  xy: 810, 2
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 9
+Top_Orca
+  rotate: false
+  xy: 1214, 668
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 1
+Top_Orca
+  rotate: false
+  xy: 1214, 2
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 6
+Top_Orca
+  rotate: false
+  xy: 1618, 668
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 3
+Top_Orca
+  rotate: false
+  xy: 1618, 2
+  size: 402, 664
+  orig: 419, 676
+  offset: 4, 3
+  index: 8

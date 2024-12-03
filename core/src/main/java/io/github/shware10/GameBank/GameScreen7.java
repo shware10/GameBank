@@ -11,65 +11,96 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-
 
 public class GameScreen7 implements Screen {
     private final Game game;
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private float stateTime;
-    private boolean isJumping = false; // 점프 상태를 관리하는 변수
-    private float characterX; // 캐릭터의 X 위치
-    private float characterY = 100; // 캐릭터의 Y 위치 (고정된 위치)
-    private int currentLane = 1; // 캐릭터의 현재 lane (0: 왼쪽, 1: 가운데, 2: 오른쪽)
-    private float targetX; // 목표 X 위치
-    private float moveSpeed = 1000f; // 캐릭터의 부드러운 이동 속도
-    private Texture krabCanTxt;
-    private float krabCanY;
-    private boolean isGameOver = false; // 결과 창 표시 상태
-    private String gameOverMessage = ""; // 결과 메시지 (예: 점수, 메시지 등)
+    private boolean isJumping = false;
+    private float characterX;
+    private float characterY = 100;
+    private int currentLane = 1;
+    private float targetX;
+    private float moveSpeed = 1000f;
+    private boolean isGameOver = false;
+    private String gameOverMessage = "";
+    // 점수 변수와 시간 관리 변수 추가
+    private int score = 0; // 점수
+    private float scoreTimer = 0; // 점수 갱신을 위한 타이머
+    private TextureAtlas orcaAtlas;  // Top_Orca.atlas
+    private TextureAtlas moleAtlas;  // Top_Mole.atlas
+    private Animation<TextureRegion> moleAnimation; // Top_Mole 애니메이션
+    private Animation<TextureRegion> orcaAnimation; // Top_Orca 애니메이션
+
 
     private List<Obstacle> obstacles;
     private float obstacleSpawnTimer;
-    private float obstacleSpawnInterval = 1.0f; // 장애물 생성 간격 (초 단위)
+    private float obstacleSpawnInterval = 1.0f;
     private Random random;
 
     private TextureAtlas leftWalkAtlas;
-    private Animation<TextureRegion> leftWalkAnimation;
+    private TextureAtlas topSlideAtlas;
+    private TextureAtlas leftSlideAtlas;
+    private TextureAtlas rightSlideAtlas;
+    private Animation<TextureRegion> topSlideAnimation;
+
     private Animation<TextureRegion> currentAnimation;
 
-    private float touchStartX = -1; // 슬라이드 시작 X 좌표
-    private float touchEndX = -1;   // 슬라이드 끝 X 좌표
+    private float touchStartX = -1;
+    private float touchEndX = -1;
+
+    private boolean isSlide = false;
+
+    private Texture obstacleTexture; // 장애물 텍스처
+
+    private Stage stage;  // UI를 위한 Stage
+    private Skin skin;    // UI 스타일을 위한 Skin
+    private TextButton restartButton;  // 재시작 버튼
+    private TextButton backToLobbyButton;  // 로비로 돌아가기 버튼
+
+    private enum AnimationState {
+        IDLE,
+        LEFT_SLIDE,
+        RIGHT_SLIDE
+    }
 
     public class Obstacle {
-        private Texture texture;
+        private Animation<TextureRegion> animation;
         private float x;
         private float y;
-        private float speed = 500f; // 장애물의 하강 속도
+        private float stateTime; // 애니메이션 상태 시간
+        private float speed = 500f;
 
-        public Obstacle(Texture texture, float x, float y) {
-            this.texture = texture;
+        public Obstacle(Animation<TextureRegion> animation, float x, float y) {
+            this.animation = animation;
             this.x = x;
             this.y = y;
+            this.stateTime = 0f;
         }
 
         public void update(float delta) {
-            // 장애물이 아래로 내려가도록 업데이트
             this.y -= speed * delta;
+            this.stateTime += delta; // 애니메이션 진행
         }
 
         public boolean isOutOfScreen() {
-            // 장애물이 화면 아래로 나갔는지 확인
-            return this.y + texture.getHeight() < 0;
+            return this.y + animation.getKeyFrame(0).getRegionHeight() < 0;
         }
 
-        public Texture getTexture() {
-            return texture;
+        public TextureRegion getCurrentFrame() {
+            return animation.getKeyFrame(stateTime, true); // 반복 애니메이션
         }
 
         public float getX() {
@@ -81,37 +112,55 @@ public class GameScreen7 implements Screen {
         }
     }
 
+    private float calculateTargetX() {
+        float laneWidth = Gdx.graphics.getWidth() / 3f;
+        return currentLane * laneWidth + (laneWidth - topSlideAnimation.getKeyFrame(0).getRegionWidth()) / 2;
+    }
+
+    // 캐릭터 이동 처리 함수
+    private void moveCharacterToTarget(float delta) {
+        // 목표 위치로 부드럽게 이동
+        if (Math.abs(targetX - characterX) > 1) {
+            characterX += Math.signum(targetX - characterX) * moveSpeed * delta;
+        } else {
+            characterX = targetX;  // 목표 위치에 도달하면 정확히 이동
+        }
+    }
+
     private boolean isCollision(float characterX, float characterY, TextureRegion characterTexture, Obstacle obstacle) {
-        // 캐릭터의 경계 생성
+        // 캐릭터와 장애물의 충돌 범위를 줄이기 위한 패딩 값
+        float characterPadding = 50f; // 캐릭터의 충돌 범위를 줄이는 값
+        float obstaclePadding = 50f; // 장애물의 충돌 범위를 줄이는 값
+
+        TextureRegion obstacleTexture = obstacle.getCurrentFrame(); // 현재 애니메이션 프레임
+
         Rectangle characterBounds = new Rectangle(
-            characterX,
-            characterY,
-            characterTexture.getRegionWidth(),
-            characterTexture.getRegionHeight()
+            characterX + characterPadding, // 패딩 적용
+            characterY + characterPadding,
+            characterTexture.getRegionWidth() - 2 * characterPadding, // 너비 감소
+            characterTexture.getRegionHeight() - 2 * characterPadding // 높이 감소
         );
 
-        // 장애물의 경계 생성
         Rectangle obstacleBounds = new Rectangle(
-            obstacle.getX(),
-            obstacle.getY(),
-            obstacle.getTexture().getWidth(),
-            obstacle.getTexture().getHeight()
+            obstacle.getX() + obstaclePadding, // 패딩 적용
+            obstacle.getY() + obstaclePadding,
+            obstacleTexture.getRegionWidth() - 2 * obstaclePadding, // 너비 감소
+            obstacleTexture.getRegionHeight() - 2 * obstaclePadding // 높이 감소
         );
 
-        // 경계가 겹치는지 확인
         return characterBounds.overlaps(obstacleBounds);
     }
 
+
     private void restartGame() {
-        // 게임 상태 초기화
-        isGameOver = false; // 게임 오버 상태 해제
-        gameOverMessage = ""; // 메시지 초기화
-        characterX = Gdx.graphics.getWidth() / 3f; // 캐릭터 초기 위치
-        currentLane = 1; // 초기 Lane
+        isGameOver = false;
+        gameOverMessage = "";
+        characterX = Gdx.graphics.getWidth() *3/ 7f;
+        currentLane = 1;
         targetX = characterX;
-        obstacles.clear(); // 기존 장애물 제거
-        stateTime = 0f; // 애니메이션 초기화
-        obstacleSpawnTimer = 0f; // 장애물 스폰 타이머 초기화
+        obstacles.clear();
+        stateTime = 0f;
+        obstacleSpawnTimer = 0f;
     }
 
     public GameScreen7(Game game) {
@@ -125,46 +174,77 @@ public class GameScreen7 implements Screen {
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
 
-        krabCanTxt = new Texture(Gdx.files.internal("krabCan.png"));
+        obstacleTexture = new Texture(Gdx.files.internal("TrashBlock_1.png"));
 
-        // 애니메이션에 대한 TextureAtlas 로드
-        leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas"); // 왼쪽 이동 애니메이션 아틀라스
+        leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas");
+        topSlideAtlas = new TextureAtlas("Top_Slide_Idle.atlas");
+        leftSlideAtlas = new TextureAtlas("Top_Slide_Left.atlas");
+        rightSlideAtlas = new TextureAtlas("Top_Slide_Right.atlas");
 
-        // 애니메이션 정의
-        leftWalkAnimation = new Animation<>(0.1f, leftWalkAtlas.findRegions("LeftWalk"), Animation.PlayMode.LOOP);
+        moleAtlas = new TextureAtlas(Gdx.files.internal("Top_Mole.atlas"));
+        orcaAtlas = new TextureAtlas(Gdx.files.internal("Top_Orca.atlas"));
 
-        // 초기 애니메이션을 leftWalk로 설정
-        currentAnimation = leftWalkAnimation;
+        moleAnimation = new Animation<>(0.1f, moleAtlas.findRegions("Top_Mole"), Animation.PlayMode.LOOP);
+        orcaAnimation = new Animation<>(0.1f, orcaAtlas.findRegions("Top_Orca"), Animation.PlayMode.LOOP);
+
+        topSlideAnimation = new Animation<>(0.1f, topSlideAtlas.findRegions("Top_Slide_Idle"), Animation.PlayMode.LOOP);
+
+        currentAnimation = topSlideAnimation;
         stateTime = 0f;
 
-        // 캐릭터의 초기 위치 설정 (가운데 lane)
-        characterX = Gdx.graphics.getWidth() / 3f; // 가운데 lane
-        targetX = characterX; // 초기 목표 위치 설정
-        krabCanY = Gdx.graphics.getHeight() - krabCanTxt.getHeight() - 10;
+        characterX = Gdx.graphics.getWidth() *3/ 7f;
+        targetX = characterX;
+
+        stage = new Stage(new ScreenViewport());
+        Gdx.input.setInputProcessor(stage);  // Stage가 터치 이벤트를 처리하도록 설정
+
+        // Skin 로드 (자신의 skin.json, uiskin.atlas, font.fnt 등을 준비해야 합니다)
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        // 재시작 버튼 생성
+        restartButton = new TextButton("Restart", skin);
+        restartButton.setPosition(Gdx.graphics.getWidth() / 2f - 50, Gdx.graphics.getHeight() / 2f - 50);
+        restartButton.addListener(event -> {
+            restartGame();  // 재시작 함수 호출
+            return true;
+        });
+
+        // 로비로 돌아가기 버튼 생성
+        backToLobbyButton = new TextButton("Back to Lobby", skin);
+        backToLobbyButton.setPosition(Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f - 100);
+        backToLobbyButton.addListener(event -> {
+            game.setScreen(new LobbyScreen(game));  // 로비 화면으로 이동
+            return true;
+        });
+
+        // 버튼들을 Stage에 추가
+        stage.addActor(restartButton);
+        stage.addActor(backToLobbyButton);
     }
+
+    private AnimationState currentState = AnimationState.IDLE;
+    private float animationChangeTimer = 1f; // 애니메이션 상태 유지 시간
+
 
     @Override
     public void render(float delta) {
-
         if (isGameOver) {
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+            // 배경 색 설정 (게임 오버 화면)
             batch.begin();
-
-            // 게임 오버 배경 표시 (선택 사항)
-            batch.draw(new Texture("game_over_background.png"), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-            // 게임 오버 메시지 출력
-            BitmapFont font = new BitmapFont(); // 기본 폰트 사용
-            font.getData().setScale(2f); // 글자 크기 조정
+            BitmapFont font = new BitmapFont();
+            font.getData().setScale(10f);
             font.draw(batch, "Game Over", Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f + 50);
             font.draw(batch, gameOverMessage, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() / 2f);
 
-            // 터치 입력으로 재시작
-            if (Gdx.input.justTouched()) {
-                restartGame(); // 게임 재시작
-            }
-
             batch.end();
-            return; // 게임 로직 중단
+
+            // Stage를 그린다
+            stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));  // Stage 업데이트
+            stage.draw();  // UI 렌더링
+
+            return;
         }
 
         Gdx.gl.glClearColor(223 / 255f, 132 / 255f, 3 / 255f, 1);
@@ -172,128 +252,113 @@ public class GameScreen7 implements Screen {
 
         stateTime += delta;
         obstacleSpawnTimer += delta;
+        scoreTimer += delta;
 
-        // 장애물 업데이트 및 충돌 체크
+        // 점수 업데이트
+        if (scoreTimer >= 3.0f) {
+            score += 100;
+            scoreTimer = 0;
+        }
+
         for (Iterator<Obstacle> iterator = obstacles.iterator(); iterator.hasNext();) {
             Obstacle obstacle = iterator.next();
             obstacle.update(delta);
 
-            // 충돌 체크
-            if (isCollision(characterX, characterY, leftWalkAnimation.getKeyFrame(stateTime, true), obstacle)) {
-                Gdx.app.log("Collision", "Game Over!");
-                isGameOver = true; // 게임 오버 상태로 전환
-                gameOverMessage = "Final Score: "; //+ getScore(); // 점수 표시 (선택 사항)
-                return; // 이후 로직 중단
+            if (isCollision(characterX, characterY, currentAnimation.getKeyFrame(stateTime, true), obstacle)) {
+                isGameOver = true;
+                gameOverMessage = "Final Score: " + score;
+                return;
             }
 
-            // 장애물이 화면 아래로 나가면 제거
             if (obstacle.isOutOfScreen()) {
                 iterator.remove();
             }
         }
 
-        // 일정 주기마다 장애물 생성
+
+        // 장애물 생성
         if (obstacleSpawnTimer >= obstacleSpawnInterval) {
             spawnObstacle();
             obstacleSpawnTimer = 0;
         }
 
-        // 장애물 업데이트
-        for (Iterator<Obstacle> iterator = obstacles.iterator(); iterator.hasNext();) {
-            Obstacle obstacle = iterator.next();
-            obstacle.update(delta);
-            if (obstacle.isOutOfScreen()) {
-                iterator.remove(); // 화면 밖으로 나간 장애물 제거
-            }
-        }
-
-        // 점프 애니메이션이 끝났는지 확인
-        if (isJumping && currentAnimation.isAnimationFinished(stateTime)) {
-            isJumping = false;
-            stateTime = 0f; // 걷기 애니메이션을 처음부터 시작
-        }
-
-        // 터치 입력 처리
+        // 화면 슬라이드 처리
         if (Gdx.input.isTouched()) {
             if (touchStartX == -1) {
-                // 터치 시작 시 X 좌표 기록
-                touchStartX = Gdx.input.getX();
+                touchStartX = Gdx.input.getX();  // 터치 시작 위치 저장
             }
-            // 터치 종료 시 X 좌표 기록
-            touchEndX = Gdx.input.getX();
+            touchEndX = Gdx.input.getX();  // 터치 종료 위치 업데이트
         } else if (touchStartX != -1 && touchEndX != -1) {
-            // 슬라이드 종료 시, 터치 이동 방향에 따라 lane 변경
+            // 슬라이드가 끝났을 때 좌우 방향을 판단하여 레인 변경
             if (touchEndX - touchStartX > 100 && currentLane < 2) {
-                // 오른쪽으로 슬라이드
-                currentLane++;
+                currentLane++;  // 오른쪽으로 슬라이드
             } else if (touchStartX - touchEndX > 100 && currentLane > 0) {
-                // 왼쪽으로 슬라이드
-                currentLane--;
+                currentLane--;  // 왼쪽으로 슬라이드
             }
 
-            // 터치 후 초기화
-            touchStartX = -1;
+            // 슬라이드가 끝난 후, 목표 위치를 새로 설정
+            touchStartX = -1;  // 슬라이드가 끝나면 초기화
             touchEndX = -1;
+            targetX = calculateTargetX();  // 현재 lane에 맞춰 목표 위치 갱신
 
-            // 목표 위치 설정
-            if (currentLane == 0) {
-                targetX = 0; // 왼쪽 lane
-            } else if (currentLane == 1) {
-                targetX = Gdx.graphics.getWidth() / 3f; // 가운데 lane
-            } else if (currentLane == 2) {
-                targetX = Gdx.graphics.getWidth() * 2 / 3f; // 오른쪽 lane
-            }
+            // 슬라이드가 발생했으므로 이동 처리 함수 호출
+            isSlide = true;
         }
 
-        // 캐릭터의 위치를 부드럽게 업데이트
-        if (Math.abs(targetX - characterX) > 1) { // 목표 위치에 거의 도달하지 않은 경우에만 이동
-            characterX += Math.signum(targetX - characterX) * moveSpeed * delta;
-        } else {
-            // 목표 위치에 도달했을 때는 정확히 위치를 맞춤
-            characterX = targetX;
+        // 슬라이드가 발생했을 때만 캐릭터 이동 처리
+        if (isSlide) {
+            moveCharacterToTarget(delta);
+            isSlide = false;  // 슬라이드가 끝났으므로 이동 후 리셋
         }
 
-        // 현재 애니메이션의 프레임을 가져오기
-        TextureRegion currentFrame = leftWalkAnimation.getKeyFrame(stateTime, true);
+        characterX = MathUtils.lerp(characterX, targetX, 0.1f); // 부드러운 이동
 
+        // 현재 애니메이션 항상 Top_Slide_Idle 유지
+        currentAnimation = topSlideAnimation;
+        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
+
+        // 렌더링
         batch.begin();
-        batch.draw(currentFrame, characterX, characterY); // 캐릭터를 화면에 그리기
+        batch.draw(currentAnimation.getKeyFrame(stateTime, true), characterX, characterY);
         for (Obstacle obstacle : obstacles) {
-            batch.draw(obstacle.getTexture(), obstacle.getX(), obstacle.getY());
+            batch.draw(obstacle.getCurrentFrame(), obstacle.getX(), obstacle.getY());
         }
+
+        // 점수 표시
+        BitmapFont font = new BitmapFont();
+        font.getData().setScale(5f);
+        font.draw(batch, "Score: " + score, 10, Gdx.graphics.getHeight() - 10);
         batch.end();
 
-        // 기존 코드에 선 그리기 부분
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled); // 선을 더 두껍게 표현하려면 Filled 사용
+        // 레인 구분 선
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(1, 1, 1, 1);
         float laneWidth = Gdx.graphics.getWidth() / 3f;
-        shapeRenderer.rectLine(laneWidth, 0, laneWidth, Gdx.graphics.getHeight(), 5); // 선 두께 5
+        shapeRenderer.rectLine(laneWidth, 0, laneWidth, Gdx.graphics.getHeight(), 5);
         shapeRenderer.rectLine(2 * laneWidth, 0, 2 * laneWidth, Gdx.graphics.getHeight(), 5);
         shapeRenderer.end();
     }
 
     private void spawnObstacle() {
-        // 장애물을 1, 2, 3번 레인 중 랜덤한 위치에 생성
-        int lane = random.nextInt(3); // 0, 1, 2 중 랜덤 선택
+        int lane = random.nextInt(3); // 랜덤 레인 선택
         float laneWidth = Gdx.graphics.getWidth() / 3f;
-        float x = lane * laneWidth + (laneWidth - krabCanTxt.getWidth()) / 2;
-        float y = Gdx.graphics.getHeight(); // 화면 상단에서 생성
+        float x = lane * laneWidth + (laneWidth - moleAnimation.getKeyFrame(0).getRegionWidth()) / 2;
+        float y = Gdx.graphics.getHeight();
 
-        obstacles.add(new Obstacle(krabCanTxt, x, y));
+        // 랜덤으로 Mole 또는 Orca 선택
+        Animation<TextureRegion> selectedAnimation = random.nextBoolean() ? moleAnimation : orcaAnimation;
+
+        obstacles.add(new Obstacle(selectedAnimation, x, y));
     }
 
     @Override
-    public void resize(int width, int height) {
-        // 뷰포트 업데이트
-    }
+    public void resize(int width, int height) {}
 
     @Override
-    public void pause() {
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-    }
+    public void resume() {}
 
     @Override
     public void hide() {
@@ -304,6 +369,8 @@ public class GameScreen7 implements Screen {
     public void dispose() {
         batch.dispose();
         shapeRenderer.dispose();
-        krabCanTxt.dispose();
+        moleAtlas.dispose();
+        orcaAtlas.dispose();
     }
 }
+
