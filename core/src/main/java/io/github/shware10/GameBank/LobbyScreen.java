@@ -40,7 +40,7 @@ public class LobbyScreen implements Screen {
         // FreeTypeFontGenerator로 커스텀 폰트 생성
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 80; // 폰트 크기 설정
+        parameter.size = 70; // 폰트 크기 설정
         parameter.color = Color.WHITE; // 폰트 색상 설정
         font = generator.generateFont(parameter);
         generator.dispose(); // 생성기 해제
@@ -121,13 +121,13 @@ public class LobbyScreen implements Screen {
                 game.setScreen(new PreGameScreen1(game));
                 break;
             case 2:
-                game.setScreen(new GameScreen2(game));
+                game.setScreen(new GameScreen2(game)); // PreGameScreen2
                 break;
             case 3:
-                game.setScreen(new GameScreen3(game));
+                game.setScreen(new GameScreen3(game)); // PreGameScreen3
                 break;
             case 4:
-                game.setScreen(new GameScreen4(game));
+                game.setScreen(new GameScreen4(game)); // PreGameScreen4
                 break;
         }
     }

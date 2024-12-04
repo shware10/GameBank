@@ -28,7 +28,7 @@ public class PreGameScreen1 implements Screen {
         try {
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 100;
+            parameter.size = 70;
             font = generator.generateFont(parameter);
             generator.dispose();
         } catch (Exception e) {
@@ -37,7 +37,7 @@ public class PreGameScreen1 implements Screen {
         }
 
         layout = new GlyphLayout();
-        layout.setText(font, "Tap to Avoid!");
+        layout.setText(font, "Tap to avoid Trash!");
 
         try {
             imageTexture = new Texture(Gdx.files.internal("Game1_Explain.png"));
@@ -55,8 +55,8 @@ public class PreGameScreen1 implements Screen {
         batch.begin();
 
         if (imageTexture != null) {
-            float desiredWidth = imageTexture.getWidth() * 1.5f;
-            float desiredHeight = imageTexture.getHeight() * 1.5f;
+            float desiredWidth = imageTexture.getWidth() * 1.4f;
+            float desiredHeight = imageTexture.getHeight() * 1.4f;
             float imageX = (Gdx.graphics.getWidth() - desiredWidth) / 2.0f;
             float imageY = 620.0f;
             batch.draw(imageTexture, imageX, imageY, desiredWidth, desiredHeight);
@@ -64,7 +64,7 @@ public class PreGameScreen1 implements Screen {
 
         if (font != null && layout != null) {
             float textX = (Gdx.graphics.getWidth() - layout.width) / 2.0f;
-            float textY = 450.0f;
+            float textY = 470.0f;
             font.draw(batch, layout, textX, textY);
         }
 

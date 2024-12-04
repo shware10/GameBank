@@ -10,14 +10,14 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
-public class PreGameScreen2 implements Screen {
+public class PreGameScreen4 implements Screen {
     private final Game game;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture;
 
-    public PreGameScreen2(Game game) {
+    public PreGameScreen4(Game game) {
         this.game = game;
     }
 
@@ -37,10 +37,10 @@ public class PreGameScreen2 implements Screen {
         }
 
         layout = new GlyphLayout();
-        layout.setText(font, "Swipe Left or Right!");
+        layout.setText(font, "Jump or Attack");
 
         try {
-            imageTexture = new Texture(Gdx.files.internal("Game2_Explain.png"));
+            imageTexture = new Texture(Gdx.files.internal("Game4_Explain.png"));
         } catch (Exception e) {
             System.err.println("Image file not found or failed to load.");
             e.printStackTrace();
@@ -55,10 +55,10 @@ public class PreGameScreen2 implements Screen {
         batch.begin();
 
         if (imageTexture != null) {
-            float desiredWidth = imageTexture.getWidth() * 1.1f;
-            float desiredHeight = imageTexture.getHeight() * 1.1f;
+            float desiredWidth = imageTexture.getWidth() * 1.2f;
+            float desiredHeight = imageTexture.getHeight() * 1.2f;
             float imageX = (Gdx.graphics.getWidth() - desiredWidth) / 2.0f;
-            float imageY = 700.0f;
+            float imageY = 540.0f;
             batch.draw(imageTexture, imageX, imageY, desiredWidth, desiredHeight);
         }
 
@@ -71,7 +71,7 @@ public class PreGameScreen2 implements Screen {
         batch.end();
 
         if (Gdx.input.isTouched()) {
-            game.setScreen(new GameScreen2(game));
+            game.setScreen(new GameScreen4(game));
         }
     }
 
