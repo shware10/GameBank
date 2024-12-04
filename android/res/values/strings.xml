@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">GameBank</string>
+    <string name="app_name">GameBank</string>
+    <string name="default_web_client_id">"254569628085-eojsb3g9ne6cn3c8e78inhcr0v06e14r.apps.googleusercontent.com"</string>
 </resources>

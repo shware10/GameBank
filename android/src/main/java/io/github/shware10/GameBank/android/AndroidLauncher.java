@@ -17,6 +17,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import io.github.shware10.GameBank.Core;
+import io.github.shware10.GameBank.R;
 import io.github.shware10.GameBank.StartScreen;
 
 /** Launches the Android application. */
