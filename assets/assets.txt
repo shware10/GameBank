@@ -18,6 +18,7 @@ TrashBlock_3.png
 TrashBlock_4.png
 TrashBlock_5.png
 TrashBlock_6.png
+default.fnt
 krabCan.png
 penguinStart.png
 penguin_Left_Attack.atlas
@@ -43,3 +44,6 @@ penguin_Right_Walk.png
 shrimpCan.png
 trashCan.png
 tunaCan.png
+uiskin.atlas
+uiskin.json
+uiskin.png

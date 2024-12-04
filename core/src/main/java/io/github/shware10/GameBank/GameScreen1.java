@@ -273,7 +273,7 @@ public class GameScreen1 implements Screen
     }
 
     private void gameOver() {
-        game.setScreen(new GameOverScreen1(game, score));
+        game.setScreen(new GameOverScreen(game, this.getClass(), score));
     }
 
     @Override

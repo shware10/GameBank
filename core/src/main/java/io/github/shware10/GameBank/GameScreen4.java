@@ -187,25 +187,9 @@ public class GameScreen4 implements Screen {
 
 
     private void gameOver() {
-
-        //game.setScreen(new GameOverScreen(game, score));
-
-        //game.setScreen(((Core) game).getLobbyScreen());
-
-            game.setScreen(new GameOverScreen(game, score));
-
-
-
-//        dinosaurPosition.set(50, 100);
-//        dinosaurVelocity.set(0, 0);
-//        obstacles.clear();
-//        spawnObstacle();
-//        isAttacking = false;
-//        isSliding = false;
-//        isJumping = false;
-//        currentAnimation = walkAnimation;
-//        stateTime = 0f;
+        game.setScreen(new GameOverScreen(game, this.getClass(), score));
     }
+
 
 
     @Override
