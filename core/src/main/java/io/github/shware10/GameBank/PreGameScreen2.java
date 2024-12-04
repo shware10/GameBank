@@ -1,5 +1,6 @@
 package io.github.shware10.GameBank;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
@@ -8,16 +9,15 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.Game;
 
-public class StartScreen implements Screen {
+public class PreGameScreen2 implements Screen {
     private final Game game;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture;
 
-    public StartScreen(Game game) {
+    public PreGameScreen2(Game game) {
         this.game = game;
     }
 
@@ -28,7 +28,7 @@ public class StartScreen implements Screen {
         try {
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 120;
+            parameter.size = 150;
             font = generator.generateFont(parameter);
             generator.dispose();
         } catch (Exception e) {
@@ -37,10 +37,10 @@ public class StartScreen implements Screen {
         }
 
         layout = new GlyphLayout();
-        layout.setText(font, "Tap to Start");
+        layout.setText(font, "Swipe Left or Right");
 
         try {
-            imageTexture = new Texture(Gdx.files.internal("penguinStart.png"));
+            imageTexture = new Texture(Gdx.files.internal("Game2_Explain.png"));
         } catch (Exception e) {
             System.err.println("Image file not found or failed to load.");
             e.printStackTrace();
@@ -71,7 +71,7 @@ public class StartScreen implements Screen {
         batch.end();
 
         if (Gdx.input.isTouched()) {
-            game.setScreen(((Core) game).getLobbyScreen());
+            game.setScreen(new GameScreen2(game));
         }
     }
 
