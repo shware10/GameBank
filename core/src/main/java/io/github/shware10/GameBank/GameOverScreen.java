@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 
 public class GameOverScreen implements Screen {
     private final Game game;
+    private final Class<? extends Screen> previousGameClass;
     private final float finalScore;
     private SpriteBatch batch;
     private BitmapFont font;
@@ -18,8 +19,9 @@ public class GameOverScreen implements Screen {
     private Rectangle restartButton;
     private Rectangle quitButton;
 
-    public GameOverScreen(Game game, float score) {
+    public GameOverScreen(Game game, Class<? extends Screen> previousGameClass, float score) {
         this.game = game;
+        this.previousGameClass = previousGameClass;
         this.finalScore = score;
     }
 
@@ -30,7 +32,6 @@ public class GameOverScreen implements Screen {
         font = new BitmapFont();
         font.getData().setScale(3);
 
-        // 버튼 위치 및 크기 설정
         float buttonWidth = 300;
         float buttonHeight = 100;
         float centerX = Gdx.graphics.getWidth() / 2f - buttonWidth / 2f;
@@ -50,7 +51,6 @@ public class GameOverScreen implements Screen {
         font.draw(batch, "Score: " + (int) finalScore, Gdx.graphics.getWidth() / 2f - 100, Gdx.graphics.getHeight() - 250);
         batch.end();
 
-        // 버튼 렌더링
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(0.2f, 0.5f, 0.8f, 1);
         shapeRenderer.rect(restartButton.x, restartButton.y, restartButton.width, restartButton.height);
@@ -63,16 +63,31 @@ public class GameOverScreen implements Screen {
         font.draw(batch, "Quit", quitButton.x + 110, quitButton.y + 65);
         batch.end();
 
-        // 입력 처리
         if (Gdx.input.isTouched()) {
             float touchX = Gdx.input.getX();
             float touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
             if (restartButton.contains(touchX, touchY)) {
-                game.setScreen(new GameScreen4(game)); // 현재 게임 재시작
+                restartGame();
             } else if (quitButton.contains(touchX, touchY)) {
-                game.setScreen(((Core) game).getLobbyScreen()); // 종료
+                quitToLobby();
             }
+        }
+    }
+
+    private void restartGame() {
+        try {
+            Screen newGameScreen = previousGameClass.getConstructor(Game.class).newInstance(game);
+            game.setScreen(newGameScreen);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void quitToLobby() {
+        if (game instanceof Core) {
+            Core coreGame = (Core) game;
+            coreGame.setScreen(coreGame.getLobbyScreen());
         }
     }
 
