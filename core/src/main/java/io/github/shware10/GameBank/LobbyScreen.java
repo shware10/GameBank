@@ -14,7 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import java.util.HashMap;
@@ -38,25 +37,24 @@ public class LobbyScreen implements Screen {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        // 폰트 생성
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pencilized.ttf"));
+        // FreeTypeFontGenerator로 커스텀 폰트 생성
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 80;
+        parameter.size = 70; // 폰트 크기 설정
+        parameter.color = Color.WHITE; // 폰트 색상 설정
         font = generator.generateFont(parameter);
-        generator.dispose();
+        generator.dispose(); // 생성기 해제
 
         // UI 스킨 설정
         Skin skin = new Skin();
         skin.add("default-font", font);
+
+        // 체크박스 스타일 설정
         CheckBox.CheckBoxStyle checkBoxStyle = new CheckBox.CheckBoxStyle();
         checkBoxStyle.font = font;
         checkBoxStyle.fontColor = Color.WHITE;
-        checkBoxStyle.checkboxOn = null;
-        checkBoxStyle.checkboxOff = null;
-        checkBoxStyle.checked = null; // 체크된 상태의 이미지 제거
-        checkBoxStyle.over = null;    // 마우스 오버 상태의 이미지 제거
-        checkBoxStyle.down = null;    // 눌렀을 때의 이미지 제거
-        checkBoxStyle.up = null;      // 기본 상태 이미지 제거
+
+        // 버튼 스타일 설정
         TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.font = font;
         buttonStyle.fontColor = Color.BLACK;
@@ -65,7 +63,7 @@ public class LobbyScreen implements Screen {
         Table mainTable = new Table();
         mainTable.setFillParent(true);
         mainTable.center();
-        mainTable.padTop(50);  // 상단 여백 조정
+        mainTable.padTop(50); // 상단 여백 조정
 
         // 게임 선택 체크박스 생성
         gameCheckBoxes = new HashMap<>();
@@ -99,7 +97,7 @@ public class LobbyScreen implements Screen {
                 }
             }
         });
-        mainTable.add(startButton).pad(10).width(500).height(200);  // 크기 조정
+        mainTable.add(startButton).pad(10).width(500).height(200); // 크기 조정
         mainTable.row();
 
         // "LEADER BOARD" 버튼 추가
@@ -120,16 +118,16 @@ public class LobbyScreen implements Screen {
     private void startSelectedGame() {
         switch (selectedGameIndex) {
             case 1:
-                game.setScreen(new GameScreen1(game));
+                game.setScreen(new PreGameScreen1(game));
                 break;
             case 2:
-                game.setScreen(new GameScreen2(game));
+                game.setScreen(new GameScreen2(game)); // PreGameScreen2
                 break;
             case 3:
-                game.setScreen(new GameScreen3(game));
+                game.setScreen(new GameScreen3(game)); // PreGameScreen3
                 break;
             case 4:
-                game.setScreen(new GameScreen4(game));
+                game.setScreen(new GameScreen4(game)); // PreGameScreen4
                 break;
         }
     }
