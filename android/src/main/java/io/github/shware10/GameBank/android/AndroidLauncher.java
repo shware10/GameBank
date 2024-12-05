@@ -40,6 +40,16 @@ public class AndroidLauncher extends AndroidApplication {
             .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
         firebaseAuth = FirebaseAuth.getInstance();
+
+        // 앱 시작 시 자동으로 Google 로그인을 시도
+        GoogleSignInAccount lastSignedInAccount = GoogleSignIn.getLastSignedInAccount(this);
+        if (lastSignedInAccount != null) {
+            // 이전에 로그인한 계정이 있으면 Firebase 인증을 시도
+            firebaseAuthWithGoogle(lastSignedInAccount);
+        } else {
+            // 로그인 계정이 없으면 Google 로그인 시작
+            startGoogleSignIn();
+        }
     }
 
     // Google 로그인 시작

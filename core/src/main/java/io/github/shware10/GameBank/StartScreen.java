@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.Game;
 
+
 public class StartScreen implements Screen {
     private final Game game;
     private SpriteBatch batch;

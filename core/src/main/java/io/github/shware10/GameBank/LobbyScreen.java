@@ -6,6 +6,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
+
 public class LobbyScreen implements Screen {
     private final Game game;
     private SpriteBatch batch;
