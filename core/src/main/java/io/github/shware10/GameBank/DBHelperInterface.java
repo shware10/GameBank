@@ -1,4 +1,4 @@
-package io.github.shware10.GameBank.android;
+package io.github.shware10.GameBank;
 
 public interface DBHelperInterface {
     boolean registerUser(String username, String password);

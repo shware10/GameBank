@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.content.ContentValues;
 import android.database.Cursor;
-import io.github.shware10.GameBank.android.DBHelperInterface;
+import io.github.shware10.GameBank.DBHelperInterface;
 
 
 public class DBHelper extends SQLiteOpenHelper implements DBHelperInterface {

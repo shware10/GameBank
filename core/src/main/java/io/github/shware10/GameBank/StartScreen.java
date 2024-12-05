@@ -9,17 +9,26 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.InputProcessor;
 
-
-public class StartScreen implements Screen {
+public class StartScreen implements Screen, InputProcessor{
     private final Game game;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture; // 이미지 텍스처
+    private final DBHelperInterface dbHelper;
 
-    public StartScreen(Game game) {
+    private String currentInput = "";
+    private String username = "";
+    private String password = "";
+    private String message = "Enter Username:"; // 초기 메시지
+    private boolean isPasswordInput = false; // 비밀번호 입력 중 여부
+
+
+    public StartScreen(Game game, DBHelperInterface dbHelper) {
         this.game = game;
+        this.dbHelper = dbHelper; // 주입된 DBHelperInterface 사용
     }
 
     @Override
@@ -39,6 +48,9 @@ public class StartScreen implements Screen {
         // PNG 이미지 로드
         imageTexture = new Texture(Gdx.files.internal("penguinStart.png")); // 이미지 파일 이름을 실제 파일명으로 교체
 
+        Gdx.input.setInputProcessor(this); // InputProcessor 설정
+
+
     }
 
     @Override
@@ -57,10 +69,11 @@ public class StartScreen implements Screen {
         // 이미지 그리기
         batch.draw(imageTexture, imageX, imageY, desiredWidth, desiredHeight);
 
-        // 텍스트를 화면 중앙에서 400픽셀 위에 그리기
-        float textX = (Gdx.graphics.getWidth() - layout.width) / 2.0f;
-        float textY = (Gdx.graphics.getHeight() + layout.height) / 2.0f;
-        font.draw(batch, layout, textX, textY + 300f);
+        // 입력 메시지와 사용자 입력 텍스트 출력
+        float textX = 50f; // 텍스트 X 좌표
+        float textY = Gdx.graphics.getHeight() - 100f; // 화면 상단에서 100픽셀 아래
+        font.draw(batch, message, textX, textY); // 메시지 출력
+        font.draw(batch, currentInput, textX, textY - 50f); // 입력 텍스트 출력 (메시지 아래)
 
         batch.end();
 
@@ -68,6 +81,91 @@ public class StartScreen implements Screen {
         if (Gdx.input.isTouched()) {
             game.setScreen(new LobbyScreen(game));
         }
+    }
+
+    @Override
+    public boolean keyTyped(char character) {
+        // 엔터 입력 시
+        if (character == '\r' || character == '\n') {
+            if (!isPasswordInput) {
+                // 사용자 이름 입력 완료, 비밀번호 입력으로 전환
+                username = currentInput;
+                currentInput = "";
+                message = "Enter Password:";
+                isPasswordInput = true;
+            } else {
+                // 비밀번호 입력 완료
+                password = currentInput;
+
+                // 사용자 등록 또는 로그인 시도
+                boolean success;
+                if (dbHelper.registerUser(username, password)) {
+                    message = "User Registered! Logging in...";
+                    success = dbHelper.loginUser(username, password);
+                } else {
+                    success = dbHelper.loginUser(username, password);
+                    message = success ? "Login Successful!" : "Login Failed!";
+                }
+
+                if (success) {
+                    game.setScreen(new LobbyScreen(game));
+                } else {
+                    currentInput = "";
+                    username = "";
+                    password = "";
+                    message = "Try Again: Enter Username:";
+                    isPasswordInput = false;
+                }
+            }
+        } else if (character == '\b' && currentInput.length() > 0) {
+            // 백스페이스 처리
+            currentInput = currentInput.substring(0, currentInput.length() - 1);
+        } else if (Character.isLetterOrDigit(character)) {
+            // 입력된 문자 추가
+            currentInput += character;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    @Override
+    public boolean touchDragged(int screenX, int screenY, int pointer) {
+        return false;
+    }
+
+    @Override
+    public boolean mouseMoved(int screenX, int screenY) {
+        return false;
+    }
+
+    @Override
+    public boolean scrolled(float amountX, float amountY) {
+        return false;
+    }
+
+    @Override
+    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
+        // 터치가 취소되었을 때의 처리 (여기서는 아무 작업도 하지 않음)
+        return false;
     }
 
     @Override
