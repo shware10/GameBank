@@ -36,6 +36,8 @@ public class GameScreen7 implements Screen {
     private float moveSpeed = 1000f;
     private boolean isGameOver = false;
     private String gameOverMessage = "";
+    private float obstacleSpeed = 500f; // 장애물 초기 속도
+    private float speedIncreaseRate = 10f; // 속도 증가율
     // 점수 변수와 시간 관리 변수 추가
     private int score = 0; // 점수
     private float scoreTimer = 0; // 점수 갱신을 위한 타이머
@@ -347,6 +349,10 @@ public class GameScreen7 implements Screen {
 
         // 랜덤으로 Mole 또는 Orca 선택
         Animation<TextureRegion> selectedAnimation = random.nextBoolean() ? moleAnimation : orcaAnimation;
+
+        if (selectedAnimation == orcaAnimation) {
+            x -= 30; // Top_Orca의 x 값을 -10으로 설정
+        }
 
         obstacles.add(new Obstacle(selectedAnimation, x, y));
     }

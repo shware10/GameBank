@@ -9,15 +9,15 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.InputProcessor;
 
-public class StartScreen implements Screen, InputProcessor{
+public class StartScreen implements Screen {
     private final Game game;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture; // 이미지 텍스처
     private final DBHelperInterface dbHelper;
+    private Texture loginButtonTexture, signupButtonTexture; // 로그인 버튼과 회원가입 버튼 텍스처
 
     private String currentInput = "";
     private String username = "";
@@ -42,14 +42,14 @@ public class StartScreen implements Screen, InputProcessor{
         font = generator.generateFont(parameter);
         generator.dispose();
 
+        loginButtonTexture = new Texture(Gdx.files.internal("krabCan.png"));
+        signupButtonTexture = new Texture(Gdx.files.internal("shrimpCan.png"));
+
         layout = new GlyphLayout();
         layout.setText(font, "Tap to Start");
 
         // PNG 이미지 로드
         imageTexture = new Texture(Gdx.files.internal("penguinStart.png")); // 이미지 파일 이름을 실제 파일명으로 교체
-
-        Gdx.input.setInputProcessor(this); // InputProcessor 설정
-
 
     }
 
@@ -66,8 +66,23 @@ public class StartScreen implements Screen, InputProcessor{
         float imageX = (Gdx.graphics.getWidth() - desiredWidth) / 2.0f;
         float imageY = -2; // 화면 하단에 맞추기 위해 Y 좌표를 0으로 설정
 
+        // 화면 중앙에 버튼 배치
+        float buttonWidth = loginButtonTexture.getWidth();
+        float buttonHeight = loginButtonTexture.getHeight();
+        float screenCenterX = Gdx.graphics.getWidth() / 2f;
+
+        // 버튼 위치 설정
+        float loginButtonX = screenCenterX - buttonWidth / 2f;
+        float loginButtonY = Gdx.graphics.getHeight() / 2f + 50;
+
+        float signupButtonX = screenCenterX - signupButtonTexture.getWidth() / 2f;
+        float signupButtonY = Gdx.graphics.getHeight() / 2f - 50;
+
         // 이미지 그리기
         batch.draw(imageTexture, imageX, imageY, desiredWidth, desiredHeight);
+        // 버튼 그리기
+        batch.draw(loginButtonTexture, loginButtonX, loginButtonY);
+        batch.draw(signupButtonTexture, signupButtonX, signupButtonY);
 
         // 입력 메시지와 사용자 입력 텍스트 출력
         float textX = 50f; // 텍스트 X 좌표
@@ -77,96 +92,29 @@ public class StartScreen implements Screen, InputProcessor{
 
         batch.end();
 
-        // 화면 터치 시 LobbyScreen으로 이동
-        if (Gdx.input.isTouched()) {
-            game.setScreen(new LobbyScreen(game));
-        }
-    }
+        if (Gdx.input.justTouched()) {
+            float touchX = Gdx.input.getX();
+            float touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
-    @Override
-    public boolean keyTyped(char character) {
-        // 엔터 입력 시
-        if (character == '\r' || character == '\n') {
-            if (!isPasswordInput) {
-                // 사용자 이름 입력 완료, 비밀번호 입력으로 전환
-                username = currentInput;
-                currentInput = "";
-                message = "Enter Password:";
-                isPasswordInput = true;
-            } else {
-                // 비밀번호 입력 완료
-                password = currentInput;
-
-                // 사용자 등록 또는 로그인 시도
-                boolean success;
-                if (dbHelper.registerUser(username, password)) {
-                    message = "User Registered! Logging in...";
-                    success = dbHelper.loginUser(username, password);
-                } else {
-                    success = dbHelper.loginUser(username, password);
-                    message = success ? "Login Successful!" : "Login Failed!";
-                }
-
-                if (success) {
-                    game.setScreen(new LobbyScreen(game));
-                } else {
-                    currentInput = "";
-                    username = "";
-                    password = "";
-                    message = "Try Again: Enter Username:";
-                    isPasswordInput = false;
-                }
+            // 로그인 버튼 클릭 시
+            if (touchX >= loginButtonX && touchX <= loginButtonX + loginButtonTexture.getWidth()
+                && touchY >= loginButtonY && touchY <= loginButtonY + loginButtonTexture.getHeight()) {
+                game.setScreen(new LoginScreen(game, dbHelper)); // 로그인 화면으로 이동
             }
-        } else if (character == '\b' && currentInput.length() > 0) {
-            // 백스페이스 처리
-            currentInput = currentInput.substring(0, currentInput.length() - 1);
-        } else if (Character.isLetterOrDigit(character)) {
-            // 입력된 문자 추가
-            currentInput += character;
+
+            // 회원가입 버튼 클릭 시
+            if (touchX >= signupButtonX && touchX <= signupButtonX + signupButtonTexture.getWidth()
+                && touchY >= signupButtonY && touchY <= signupButtonY + signupButtonTexture.getHeight()) {
+                game.setScreen(new SignupScreen(game, dbHelper)); // 회원가입 화면으로 이동
+            }
         }
-        return true;
+
+        // 화면 터치 시 LobbyScreen으로 이동
+        /*if (Gdx.input.isTouched()) {
+            //game.setScreen(new LobbyScreen(game));
+        }*/
     }
 
-    @Override
-    public boolean keyDown(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean keyUp(int keycode) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
-
-    @Override
-    public boolean touchDragged(int screenX, int screenY, int pointer) {
-        return false;
-    }
-
-    @Override
-    public boolean mouseMoved(int screenX, int screenY) {
-        return false;
-    }
-
-    @Override
-    public boolean scrolled(float amountX, float amountY) {
-        return false;
-    }
-
-    @Override
-    public boolean touchCancelled(int screenX, int screenY, int pointer, int button) {
-        // 터치가 취소되었을 때의 처리 (여기서는 아무 작업도 하지 않음)
-        return false;
-    }
 
     @Override
     public void resize(int width, int height) {}

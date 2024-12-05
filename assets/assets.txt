@@ -34,6 +34,7 @@ penguin_Right_Slide.atlas
 penguin_Right_Slide.png
 penguin_Right_Walk.atlas
 penguin_Right_Walk.png
+shrimpCan.png
 uiskin.atlas
 uiskin.json
 uiskin.png
