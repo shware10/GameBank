@@ -70,7 +70,7 @@ public class GameScreen4 implements Screen {
         dinosaurPosition = new Vector2(50, groundLevel);
         dinosaurVelocity = new Vector2(0, 0);
 
-        trashTexture = new Texture("trashCan.png"); // TrashBlock_2.png 텍스처 로드
+        trashTexture = new Texture("TrashBlock_2.png"); // TrashBlock_2.png 텍스처 로드
 
         obstacles = new Array<>();
         spawnObstacle();
@@ -187,9 +187,25 @@ public class GameScreen4 implements Screen {
 
 
     private void gameOver() {
-        game.setScreen(new GameOverScreen(game, this.getClass(), score));
-    }
 
+        //game.setScreen(new GameOverScreen(game, score));
+
+        //game.setScreen(((Core) game).getLobbyScreen());
+
+            game.setScreen(new GameOverScreen(game, score));
+
+
+
+//        dinosaurPosition.set(50, 100);
+//        dinosaurVelocity.set(0, 0);
+//        obstacles.clear();
+//        spawnObstacle();
+//        isAttacking = false;
+//        isSliding = false;
+//        isJumping = false;
+//        currentAnimation = walkAnimation;
+//        stateTime = 0f;
+    }
 
 
     @Override

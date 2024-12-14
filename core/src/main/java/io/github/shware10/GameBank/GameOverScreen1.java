@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 
-public class GameOverScreen implements Screen {
+public class GameOverScreen1 implements Screen {
     private final Game game;
     private final float finalScore;
     private SpriteBatch batch;
@@ -18,7 +18,7 @@ public class GameOverScreen implements Screen {
     private Rectangle restartButton;
     private Rectangle quitButton;
 
-    public GameOverScreen(Game game, float score) {
+    public GameOverScreen1(Game game, float score) {
         this.game = game;
         this.finalScore = score;
     }
@@ -69,7 +69,7 @@ public class GameOverScreen implements Screen {
             float touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
             if (restartButton.contains(touchX, touchY)) {
-                game.setScreen(new GameScreen4(game)); // 현재 게임 재시작
+                game.setScreen(new GameScreen1(game)); // 현재 게임 재시작
             } else if (quitButton.contains(touchX, touchY)) {
                 game.setScreen(((Core) game).getLobbyScreen()); // 종료
             }

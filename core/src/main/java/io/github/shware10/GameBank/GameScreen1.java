@@ -3,7 +3,6 @@ package io.github.shware10.GameBank;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -17,7 +16,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 public class GameScreen1 implements Screen
 {
@@ -51,14 +49,8 @@ public class GameScreen1 implements Screen
     @Override
     public void show() {
         batch = new SpriteBatch();
-
-        // FreeTypeFontGenerator를 사용하여 커스텀 폰트 생성
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 100; // 폰트 크기
-        parameter.color = Color.WHITE; // 폰트 색상
-        font = generator.generateFont(parameter);
-        generator.dispose(); // 생성기 해제
+        font = new BitmapFont();
+        font.getData().setScale(5f);
 
         // 캐릭터 애니메이션 로드
         leftWalkAtlas = new TextureAtlas("penguin_Left_Walk.atlas");
@@ -67,10 +59,9 @@ public class GameScreen1 implements Screen
         rightWalkAnimation = new Animation<>(0.1f, rightWalkAtlas.findRegions("RightWalk"), Animation.PlayMode.LOOP);
         currentAnimation = leftWalkAnimation;
         characterX = (Gdx.graphics.getWidth() - leftWalkAnimation.getKeyFrame(0).getRegionWidth()) / 2.0f;
-        characterY = 262.56f;
-
+        characterY = 258.56f;
         // 바닥 텍스처 로드 및 초기화
-        trashBlockTextures = new Texture[]{
+        trashBlockTextures = new Texture[] {
             new Texture("TrashBlock_1.png"),
             new Texture("TrashBlock_2.png"),
             new Texture("TrashBlock_3.png"),
@@ -107,7 +98,6 @@ public class GameScreen1 implements Screen
             }
         }, 0, 0.5f);
     }
-
 
     @Override
     public void render(float delta) {
@@ -283,7 +273,7 @@ public class GameScreen1 implements Screen
     }
 
     private void gameOver() {
-        game.setScreen(new GameOverScreen(game, this.getClass(), score));
+        game.setScreen(new GameOverScreen1(game, score));
     }
 
     @Override
@@ -303,7 +293,7 @@ public class GameScreen1 implements Screen
     @Override
     public void dispose() {
         batch.dispose();
-        font.dispose(); // 커스텀 폰트 해제
+        font.dispose();
         leftWalkAtlas.dispose();
         rightWalkAtlas.dispose();
         trashCan.dispose();

@@ -1,11 +1,5 @@
 .gitkeep
-Game1_Explain.png
-Game2_Explain.png
-Game3_Explain.png
-Game4_Explain.png
 Pencilized.ttf
-Side_Mole.atlas
-Side_Mole.png
 Top_Mole.atlas
 Top_Mole.png
 Top_Orca.atlas
@@ -22,10 +16,8 @@ TrashBlock_3.png
 TrashBlock_4.png
 TrashBlock_5.png
 TrashBlock_6.png
-default.fnt
 krabCan.png
 penguinStart.png
-penguin_GameOver.png
 penguin_Left_Attack.atlas
 penguin_Left_Attack.png
 penguin_Left_Idle.atlas
@@ -49,7 +41,3 @@ penguin_Right_Walk.png
 shrimpCan.png
 trashCan.png
 tunaCan.png
-uiskin.atlas
-uiskin.json
-uiskin.png
-zai_PencilTypewriter.ttf

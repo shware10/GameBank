@@ -16,7 +16,6 @@ public class StartScreen implements Screen {
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture;
-    private float time;
 
     public StartScreen(Game game) {
         this.game = game;
@@ -27,9 +26,9 @@ public class StartScreen implements Screen {
         batch = new SpriteBatch();
 
         try {
-            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Pencilized.ttf"));
             FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            parameter.size = 120;
+            parameter.size = 150;
             font = generator.generateFont(parameter);
             generator.dispose();
         } catch (Exception e) {
@@ -53,8 +52,6 @@ public class StartScreen implements Screen {
         Gdx.gl.glClearColor(223 / 255f, 132 / 255f, 3 / 255f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        time += delta;
-
         batch.begin();
 
         if (imageTexture != null) {
@@ -66,20 +63,9 @@ public class StartScreen implements Screen {
         }
 
         if (font != null && layout != null) {
-            float scale = 1.0f + 0.03f * -(float) Math.sin(time * 2 * Math.PI); // 주기적인 변화
-            font.getData().setScale(scale); // 폰트 크기 조정
-
-            GlyphLayout titleLayout = new GlyphLayout(font, "Tap to Start");
-
-
-            float textX = (Gdx.graphics.getWidth() - titleLayout.width) / 2.0f;
-            float textY = (Gdx.graphics.getHeight() + titleLayout.height) / 2.0f;
-
-            font.draw(batch, "Tap to Start", textX, textY + 300f);
-
-            // 폰트 크기 원래대로 복원
-            font.getData().setScale(1.0f);
-
+            float textX = (Gdx.graphics.getWidth() - layout.width) / 2.0f;
+            float textY = (Gdx.graphics.getHeight() + layout.height) / 2.0f;
+            font.draw(batch, layout, textX, textY + 300f);
         }
 
         batch.end();
