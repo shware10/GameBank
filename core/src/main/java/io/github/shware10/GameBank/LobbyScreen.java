@@ -148,13 +148,13 @@ public class LobbyScreen implements Screen {
                     game.setScreen(new PreGameScreen1(game));
                     break;
                 case 2:
-                    game.setScreen(new GameScreen2(game));
+                    game.setScreen(new PreGameScreen2(game)); // PreGameScreen2
                     break;
                 case 3:
-                    game.setScreen(new GameScreen3(game));
+                    game.setScreen(new PreGameScreen3(game)); // PreGameScreen3
                     break;
                 case 4:
-                    game.setScreen(new GameScreen4(game));
+                    game.setScreen(new PreGameScreen4(game)); // PreGameScreen4
                     break;
             }
         }
