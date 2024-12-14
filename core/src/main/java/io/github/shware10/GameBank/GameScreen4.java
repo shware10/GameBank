@@ -4,7 +4,6 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture; // 추가
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -22,8 +21,8 @@ public class GameScreen4 implements Screen {
     private final Game game;
     private SpriteBatch batch;
 
-    private TextureAtlas rightWalkAtlas, attackAtlas, slideAtlas;
-    private Animation<TextureRegion> walkAnimation, attackAnimation, slideAnimation;
+    private TextureAtlas rightWalkAtlas, attackAtlas, slideAtlas, sideMoleAtlas;
+    private Animation<TextureRegion> walkAnimation, attackAnimation, slideAnimation, sideMoleAnimation;
     private Animation<TextureRegion> currentAnimation;
 
     private Vector2 dinosaurPosition;
@@ -33,17 +32,16 @@ public class GameScreen4 implements Screen {
     private boolean isAttacking = false;
     private boolean isSliding = false;
 
-    private Array<Rectangle> obstacles;
+    private Array<Obstacle> obstacles;
     private long lastObstacleTime;
     private float obstacleSpeed = 400f;
     private float stateTime;
     private float score = 0;
 
     private float initialTouchY;
-    private float groundLevel = 100; // 바닥 높이를 설정
+    private float groundLevel = 100;
 
     private BitmapFont font;
-    private Texture trashTexture; // TrashBlock_2.png 텍스처 추가
 
     public GameScreen4(Game game) {
         this.game = game;
@@ -57,20 +55,28 @@ public class GameScreen4 implements Screen {
         font.setColor(0.5f, 0.5f, 0.5f, 1);
         font.getData().setScale(4);
 
+        // Load animations
         rightWalkAtlas = new TextureAtlas("penguin_Right_Walk.atlas");
         attackAtlas = new TextureAtlas("penguin_Right_Attack.atlas");
         slideAtlas = new TextureAtlas("penguin_Right_Slide.atlas");
+        sideMoleAtlas = new TextureAtlas("Side_Mole.atlas");
 
         walkAnimation = new Animation<>(0.1f, rightWalkAtlas.findRegions("RightWalk"), Animation.PlayMode.LOOP);
         attackAnimation = new Animation<>(0.1f, attackAtlas.findRegions("penguin_RightAtack"), Animation.PlayMode.LOOP);
         slideAnimation = new Animation<>(0.1f, slideAtlas.findRegions("penguin_RightSlide"), Animation.PlayMode.LOOP);
 
+        // Initialize Side_Mole animation
+        Array<TextureAtlas.AtlasRegion> moleFrames = sideMoleAtlas.findRegions("Side_Mole");
+        if (moleFrames == null || moleFrames.size == 0) {
+            throw new IllegalStateException("No frames found for 'Side_Mole'.");
+        }
+        sideMoleAnimation = new Animation<>(0.1f, moleFrames, Animation.PlayMode.LOOP);
+
+
         currentAnimation = walkAnimation;
 
         dinosaurPosition = new Vector2(50, groundLevel);
         dinosaurVelocity = new Vector2(0, 0);
-
-        trashTexture = new Texture("trashCan.png"); // TrashBlock_2.png 텍스처 로드
 
         obstacles = new Array<>();
         spawnObstacle();
@@ -79,8 +85,8 @@ public class GameScreen4 implements Screen {
     }
 
     private void spawnObstacle() {
-        float obstacleY = MathUtils.random(100, 600 - trashTexture.getHeight());
-        Rectangle obstacle = new Rectangle(Gdx.graphics.getWidth(), obstacleY, trashTexture.getWidth(), trashTexture.getHeight());
+        float obstacleY = MathUtils.randomBoolean() ? 100 : 600;
+        Obstacle obstacle = new Obstacle(Gdx.graphics.getWidth(), obstacleY);
         obstacles.add(obstacle);
         lastObstacleTime = TimeUtils.nanoTime();
     }
@@ -92,7 +98,7 @@ public class GameScreen4 implements Screen {
 
         stateTime += delta;
 
-        // 중력 적용 및 바닥 높이 제한
+        // 중력 및 바닥 충돌 처리
         if (dinosaurPosition.y > groundLevel || isJumping) {
             dinosaurVelocity.y += gravity * delta;
         }
@@ -100,28 +106,43 @@ public class GameScreen4 implements Screen {
             dinosaurPosition.y = groundLevel;
             isJumping = false;
             dinosaurVelocity.y = 0;
-
-            if (isSliding && slideAnimation.isAnimationFinished(stateTime)) {
-                isSliding = false;
-                currentAnimation = walkAnimation;
-            }
         }
 
         dinosaurPosition.mulAdd(dinosaurVelocity, delta);
 
+        // 애니메이션 완료 상태 확인
+        if (isSliding && slideAnimation.isAnimationFinished(stateTime)) {
+            isSliding = false;
+            currentAnimation = walkAnimation;
+        }
+        if (isAttacking && attackAnimation.isAnimationFinished(stateTime)) {
+            isAttacking = false;
+            currentAnimation = walkAnimation;
+        }
+
+        // 사용자 입력 처리
         handleInput();
+
+        // 장애물 업데이트
         updateObstacles(delta);
 
-        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
-
         batch.begin();
+
+        // 플레이어 애니메이션 렌더링
+        TextureRegion currentFrame = currentAnimation.getKeyFrame(stateTime, true);
         batch.draw(currentFrame, dinosaurPosition.x, dinosaurPosition.y);
-        for (Rectangle obstacle : obstacles) {
-            batch.draw(trashTexture, obstacle.x, obstacle.y); // TrashBlock_2.png 그리기
+
+        // 장애물 애니메이션 렌더링
+        for (Obstacle obstacle : obstacles) {
+            TextureRegion obstacleFrame = sideMoleAnimation.getKeyFrame(obstacle.stateTime, true);
+            batch.draw(obstacleFrame, obstacle.x, obstacle.y);
         }
+
+        // 점수 표시
         font.draw(batch, "Score: " + (int) score, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() - 20);
         batch.end();
     }
+
 
 
     private void handleInput() {
@@ -129,16 +150,20 @@ public class GameScreen4 implements Screen {
             if (initialTouchY == 0) initialTouchY = Gdx.input.getY();
 
             float deltaY = initialTouchY - Gdx.input.getY();
-            if (deltaY > 50 && !isJumping && !isAttacking && !isSliding) {
+            if (deltaY > 50 && !isJumping && !isSliding && !isAttacking) {
+                // 점프 애니메이션
                 dinosaurVelocity.y = 1000f;
                 isJumping = true;
-                currentAnimation = walkAnimation;
-            } else if (deltaY < -50 && !isSliding && !isAttacking) {
+                currentAnimation = walkAnimation; // 점프는 걷기로 돌아가기
+            } else if (deltaY < -50 && !isSliding&& !isAttacking) {
+                // 슬라이드 애니메이션
                 isSliding = true;
-                dinosaurPosition.y = 100;
                 currentAnimation = slideAnimation;
+                dinosaurVelocity.y = 0f;
+                dinosaurPosition.y = 100;
                 stateTime = 0f;
             } else if (deltaY == 0 && !isAttacking && !isSliding) {
+                // 공격 애니메이션
                 isAttacking = true;
                 currentAnimation = attackAnimation;
                 stateTime = 0f;
@@ -148,49 +173,49 @@ public class GameScreen4 implements Screen {
         }
     }
 
+
+
     private void updateObstacles(float delta) {
-        // 점수에 따라 스폰 딜레이 감소 (최소 500ms까지 제한)
-        long spawnDelay = MathUtils.clamp(2000000000 - (int)(score / 20) * 100000000, 1000000000, 2000000000);
+        long spawnDelay = MathUtils.clamp(2000000000 - (int) (score / 20) * 100000000, 1000000000, 2000000000);
 
         if (TimeUtils.nanoTime() - lastObstacleTime > spawnDelay) {
             spawnObstacle();
         }
 
-        Iterator<Rectangle> iter = obstacles.iterator();
+        Iterator<Obstacle> iter = obstacles.iterator();
         while (iter.hasNext()) {
-            Rectangle obstacle = iter.next();
+            Obstacle obstacle = iter.next();
             obstacle.x -= obstacleSpeed * delta;
+            obstacle.stateTime += delta;
 
-            if (isAttacking && obstacle.overlaps(new Rectangle(dinosaurPosition.x, dinosaurPosition.y, attackAnimation.getKeyFrame(stateTime).getRegionWidth(), attackAnimation.getKeyFrame(stateTime).getRegionHeight()))) {
+            Rectangle obstacleBounds = obstacle.getBounds(
+                sideMoleAnimation.getKeyFrame(0).getRegionWidth(),
+                sideMoleAnimation.getKeyFrame(0).getRegionHeight()
+            );
+            Rectangle playerBounds = new Rectangle(
+                dinosaurPosition.x,
+                dinosaurPosition.y,
+                walkAnimation.getKeyFrame(stateTime).getRegionWidth(),
+                walkAnimation.getKeyFrame(stateTime).getRegionHeight()
+            );
+
+            if (isAttacking && obstacleBounds.overlaps(playerBounds)) {
                 iter.remove();
                 score++;
-            } else if (obstacle.overlaps(new Rectangle(dinosaurPosition.x, dinosaurPosition.y, walkAnimation.getKeyFrame(stateTime).getRegionWidth(), walkAnimation.getKeyFrame(stateTime).getRegionHeight()))) {
+            } else if (obstacleBounds.overlaps(playerBounds)) {
                 gameOver();
             }
 
-            if (obstacle.x + obstacle.width < 0) {
+            if (obstacle.x + obstacleBounds.width < 0) {
                 iter.remove();
                 score++;
             }
         }
-
-        if (isAttacking && attackAnimation.isAnimationFinished(stateTime)) {
-            isAttacking = false;
-            currentAnimation = walkAnimation;
-        }
-
-        if (isSliding && slideAnimation.isAnimationFinished(stateTime)) {
-            isSliding = false;
-            currentAnimation = walkAnimation;
-        }
     }
-
 
     private void gameOver() {
         game.setScreen(new GameOverScreen(game, this.getClass(), score));
     }
-
-
 
     @Override
     public void resize(int width, int height) {}
@@ -210,9 +235,24 @@ public class GameScreen4 implements Screen {
     public void dispose() {
         batch.dispose();
         font.dispose();
-        trashTexture.dispose();
         rightWalkAtlas.dispose();
         attackAtlas.dispose();
         slideAtlas.dispose();
+        sideMoleAtlas.dispose();
+    }
+
+    private static class Obstacle {
+        float x, y;
+        float stateTime;
+
+        Obstacle(float x, float y) {
+            this.x = x;
+            this.y = y;
+            this.stateTime = 0f;
+        }
+
+        Rectangle getBounds(float width, float height) {
+            return new Rectangle(x, y, width, height);
+        }
     }
 }
