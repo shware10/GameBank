@@ -3,13 +3,16 @@ package io.github.shware10.GameBank;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -28,6 +31,7 @@ public class GameScreen2 implements Screen {
     private SpriteBatch batch;
     private ShapeRenderer shapeRenderer;
     private float stateTime;
+    private BitmapFont font;
     private boolean isJumping = false;
     private float characterX;
     private float characterY = 100;
@@ -171,6 +175,14 @@ public class GameScreen2 implements Screen {
 
     @Override
     public void show() {
+        // FreeTypeFontGenerator를 사용하여 커스텀 폰트 생성
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 100; // 폰트 크기
+        parameter.color = Color.WHITE; // 폰트 색상
+        font = generator.generateFont(parameter);
+        generator.dispose(); // 생성기 해제
+
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
 
@@ -325,10 +337,13 @@ public class GameScreen2 implements Screen {
             batch.draw(obstacle.getCurrentFrame(), obstacle.getX(), obstacle.getY());
         }
 
-        // 점수 표시
-        BitmapFont font = new BitmapFont();
-        font.getData().setScale(5f);
-        font.draw(batch, "Score: " + score, 10, Gdx.graphics.getHeight() - 10);
+        // 스코어 텍스트 그리기
+        String scoreText = "" + score;
+        GlyphLayout layout = new GlyphLayout(font, scoreText);
+        float textX = (Gdx.graphics.getWidth() - layout.width) / 2;
+        float textY = Gdx.graphics.getHeight() - 200;
+        font.draw(batch, scoreText, textX, textY);
+
         batch.end();
 
         // 레인 구분 선
