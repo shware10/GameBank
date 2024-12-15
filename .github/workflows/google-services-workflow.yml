@@ -22,7 +22,7 @@ jobs:
 
       # 3. 구글 서비스 JSON 파일을 복호화하여 google-services.json으로 저장
       - name: Decode google-services.json from GitHub Secrets
-        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > ./app/google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_JSON }}" | base64 --decode > ./GameBank/android/src/google-services.json
 
       # 4. Android 빌드를 실행
       - name: Build Debug APK
