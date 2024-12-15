@@ -3,7 +3,7 @@ name: Build and Deploy Android App
 on:
   push:
     branches:
-      - main  # main 브랜치에 푸시될 때만 실행됩니다.
+      - '*'
 
 jobs:
   build:
