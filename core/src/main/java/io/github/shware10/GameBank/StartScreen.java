@@ -12,14 +12,16 @@ import com.badlogic.gdx.Game;
 
 public class StartScreen implements Screen {
     private final Game game;
+    private final GoogleSignInService googleSignInService;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture;
     private float time;
 
-    public StartScreen(Game game) {
+    public StartScreen(Game game, GoogleSignInService googleSignInService) {
         this.game = game;
+        this.googleSignInService = googleSignInService; // Google 로그인 서비스 초기화
     }
 
     @Override
@@ -46,6 +48,8 @@ public class StartScreen implements Screen {
             System.err.println("Image file not found or failed to load.");
             e.printStackTrace();
         }
+
+        googleSignInService.startSignIn();
     }
 
     @Override

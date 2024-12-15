@@ -6,15 +6,22 @@ public class Core extends Game {
     private StartScreen startScreen;
     private LobbyScreen lobbyScreen;
 
-    @Override
-    public void create() {
-        startScreen = new StartScreen(this);
-        lobbyScreen = new LobbyScreen(this);
-
-        setScreen(startScreen);
-    }
 
     public LobbyScreen getLobbyScreen() {
         return lobbyScreen;
+    }
+
+    private final GoogleSignInService googleSignInService;
+
+    // Core 생성자에서 GoogleSignInService를 전달받음
+    public Core(GoogleSignInService googleSignInService) {
+        this.googleSignInService = googleSignInService;
+    }
+
+    @Override
+    public void create() {
+        // StartScreen에 GoogleSignInService 전달
+        setScreen(new StartScreen(this, googleSignInService));
+        lobbyScreen = new LobbyScreen(this);
     }
 }
