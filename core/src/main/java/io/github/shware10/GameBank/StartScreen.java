@@ -12,13 +12,15 @@ import com.badlogic.gdx.Game;
 
 public class StartScreen implements Screen {
     private final Game game;
+    private final GoogleSignInService googleSignInService;
     private SpriteBatch batch;
     private BitmapFont font;
     private GlyphLayout layout;
     private Texture imageTexture; // 이미지 텍스처
 
-    public StartScreen(Game game) {
+    public StartScreen(Game game, GoogleSignInService googleSignInService) {
         this.game = game;
+        this.googleSignInService = googleSignInService; // Google 로그인 서비스 초기화
     }
 
     @Override
@@ -37,7 +39,7 @@ public class StartScreen implements Screen {
 
         // PNG 이미지 로드
         imageTexture = new Texture(Gdx.files.internal("penguinStart.png")); // 이미지 파일 이름을 실제 파일명으로 교체
-
+        googleSignInService.startSignIn();
     }
 
     @Override

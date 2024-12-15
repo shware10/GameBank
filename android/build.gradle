@@ -16,6 +16,9 @@ plugins {
 android {
   namespace "io.github.shware10.GameBank"
   compileSdk 34
+  buildFeatures {
+    buildConfig = true
+  }
   sourceSets {
     main {
       manifest.srcFile 'AndroidManifest.xml'
@@ -42,6 +45,7 @@ android {
     versionCode 1
     versionName "1.0"
     multiDexEnabled true
+    buildConfigField "String", "DEFAULT_WEB_CLIENT_ID", "\"254569628085-eojsb3g9ne6cn3c8e78inhcr0v06e14r.apps.googleusercontent.com\""
   }
   compileOptions {
     sourceCompatibility "11"

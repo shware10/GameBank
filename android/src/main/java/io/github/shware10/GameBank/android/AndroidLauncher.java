@@ -5,8 +5,6 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import com.badlogic.gdx.backends.android.AndroidApplication;
-import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.badlogic.gdx.Gdx;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -16,11 +14,13 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+
+import io.github.shware10.GameBank.BuildConfig;
 import io.github.shware10.GameBank.Core;
+import io.github.shware10.GameBank.GoogleSignInService;
 import io.github.shware10.GameBank.StartScreen;
 
-/** Launches the Android application. */
-public class AndroidLauncher extends AndroidApplication {
+public class AndroidLauncher extends AndroidApplication implements GoogleSignInService {
 
     private static final int RC_SIGN_IN = 9001;
     private GoogleSignInClient googleSignInClient;
@@ -30,19 +30,22 @@ public class AndroidLauncher extends AndroidApplication {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-        initialize(new Core(), config);
+
+        // Core와 StartScreen 초기화, this를 GoogleSignInService로 전달
+        initialize(new Core(this), config);
 
         // Google Sign-In 옵션 설정
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)) // Firebase 콘솔에서 제공된 ID
+            .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID)
             .requestEmail()
             .build();
         googleSignInClient = GoogleSignIn.getClient(this, gso);
         firebaseAuth = FirebaseAuth.getInstance();
     }
 
-    // Google 로그인 시작
-    public void startGoogleSignIn() {
+    @Override
+    public void startSignIn() {
+        // Google 로그인 시작
         Intent signInIntent = googleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
@@ -54,12 +57,21 @@ public class AndroidLauncher extends AndroidApplication {
         if (requestCode == RC_SIGN_IN) {
             GoogleSignIn.getSignedInAccountFromIntent(data).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
+                    Gdx.app.log("GoogleSignIn", "Firebase login successful: ");
+
                     GoogleSignInAccount account = task.getResult();
                     if (account != null) {
                         firebaseAuthWithGoogle(account);
                     }
                 } else {
-                    Gdx.app.log("GoogleSignIn", "Sign-In failed");
+                    Exception exception = task.getException();
+                    if (exception != null) {
+                        // 로그인 실패의 상세 예외 메시지를 로그캣에 출력
+                        Gdx.app.log("GoogleSignIn", "Sign-In failed: " + exception.getMessage());
+
+                        // 예외 스택 트레이스를 추가로 로그로 출력 (보다 자세한 오류 분석을 위해)
+                        exception.printStackTrace();
+                    }
                 }
             });
         }
@@ -78,3 +90,4 @@ public class AndroidLauncher extends AndroidApplication {
             });
     }
 }
+
