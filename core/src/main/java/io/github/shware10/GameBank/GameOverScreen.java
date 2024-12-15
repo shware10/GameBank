@@ -142,18 +142,18 @@ public class GameOverScreen implements Screen {
         }
         batch.end();
 
-        // 입력 처리
         if (Gdx.input.isTouched()) {
             float touchX = Gdx.input.getX();
             float touchY = Gdx.graphics.getHeight() - Gdx.input.getY();
 
             if (restartButton.contains(touchX, touchY)) {
-                game.setScreen(new GameScreen1(game)); // 현재 게임 재시작
+                restartGame();
             } else if (quitButton.contains(touchX, touchY)) {
-                game.setScreen(((Core) game).getLobbyScreen()); // 종료
+                quitToLobby();
             }
         }
     }
+
 
     private void drawRoundedRectangle(ShapeRenderer shapeRenderer, float x, float y, float width, float height, float radius) {
         // 사각형의 본체
@@ -165,6 +165,21 @@ public class GameOverScreen implements Screen {
         shapeRenderer.arc(x + width - radius, y + radius, radius, 270, 90); // Bottom-right
         shapeRenderer.arc(x + width - radius, y + height - radius, radius, 0, 90); // Top-right
         shapeRenderer.arc(x + radius, y + height - radius, radius, 90, 90); // Top-left
+    }
+    private void restartGame() {
+        try {
+            Screen newGameScreen = previousGameClass.getConstructor(Game.class).newInstance(game);
+            game.setScreen(newGameScreen);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void quitToLobby() {
+        if (game instanceof Core) {
+            Core coreGame = (Core) game;
+            coreGame.setScreen(coreGame.getLobbyScreen());
+        }
     }
 
     @Override
