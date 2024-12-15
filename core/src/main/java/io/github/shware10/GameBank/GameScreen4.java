@@ -3,12 +3,15 @@ package io.github.shware10.GameBank;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -54,6 +57,15 @@ public class GameScreen4 implements Screen {
         font = new BitmapFont();
         font.setColor(0.5f, 0.5f, 0.5f, 1);
         font.getData().setScale(4);
+
+        // FreeTypeFontGenerator를 사용하여 커스텀 폰트 생성
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("zai_PencilTypewriter.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 100; // 폰트 크기
+        parameter.color = Color.WHITE; // 폰트 색상
+        font = generator.generateFont(parameter);
+        generator.dispose(); // 생성기 해제
+
 
         // Load animations
         rightWalkAtlas = new TextureAtlas("penguin_Right_Walk.atlas");
@@ -138,8 +150,13 @@ public class GameScreen4 implements Screen {
             batch.draw(obstacleFrame, obstacle.x, obstacle.y);
         }
 
-        // 점수 표시
-        font.draw(batch, "Score: " + (int) score, Gdx.graphics.getWidth() / 2f - 110, Gdx.graphics.getHeight() - 20);
+        // 스코어 텍스트 그리기
+        String scoreText = "" + (int)score;
+        GlyphLayout layout = new GlyphLayout(font, scoreText);
+        float textX = (Gdx.graphics.getWidth() - layout.width) / 2;
+        float textY = Gdx.graphics.getHeight() - 200;
+        font.draw(batch, scoreText, textX, textY);
+
         batch.end();
     }
 
