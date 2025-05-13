@@ -39,5 +39,11 @@
 
 ---
 
+## 실행 영상
+[![GAMEBANK Demo](https://img.youtube.com/vi/bXWyDo2SnkQ/0.jpg)](https://youtu.be/bXWyDo2SnkQ)
+
+
+---
+
 ## Github
 [https://github.com/shware10/GameBank](https://github.com/shware10/GameBank)
